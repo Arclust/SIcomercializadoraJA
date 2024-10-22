@@ -41,7 +41,7 @@ def actualizar_producto():
 
     print(df_productos.head())
 
-# ESTO NO ES UNA DEMOSTRACION
+# ESTO NO ES UNA DEMOSTRACION ajajblabla
 
 
 def eliminar_producto():
