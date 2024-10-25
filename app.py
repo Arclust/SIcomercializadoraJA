@@ -17,22 +17,23 @@ def actualizar_producto():
 
     if not producto_idx.empty:
         print("¿Qué te gustaría actualizar?")
-        print("1. Cantidad del producto")
-        print("2. Tipo de producto")
-        print("3. Ambos")
-        opcion = input("Seleccione una opción (1, 2, 3): ")
+        print("1. Aumentar las Unidades de un producto")
+        print("2. Disminuir las unidades de un producto")
+        opcion = int(input("Seleccione una opción (1, 2): "))
+        if opcion == 1:
+            adi_sus = int(input("Introduzca la cantidad de prendas a agregar: "))
+        elif opcion == 2:
+            adi_sus = int(input("Introduza la cantidad en que desea disminuir este producto: "))
+            if adi_sus > df_productos.at[producto_idx[0], 'Cantidad_producto']:
+                print("ERROR. SE DESEAN ELIMINAR MÁS INSTANCIAS DE LAS QUE HAY DISPONIBLES.")
+                return
+            adi_sus *= -1
+            
+        else:
+            return
+        df_productos.at[producto_idx[0], 'Cantidad_producto'] += adi_sus
 
-        if opcion == "1" or opcion == "3":
-            nueva_cantidad = input("Indique la nueva cantidad del producto: ")
-            df_productos.at[producto_idx[0], 'Cantidad_producto'] = nueva_cantidad
-            print(f"Cantidad actualizada: {nueva_cantidad}")
-        
-        if opcion == "2" or opcion == "3":
-            nuevo_tipo = input("Indique el nuevo tipo del producto: ")
-            df_productos.at[producto_idx[0], 'Tipo_producto'] = nuevo_tipo
-            print(f"Tipo de producto actualizado: {nuevo_tipo}")
-        
-        # Guardar los cambios en el archivo CSV
+             # Guardar los cambios en el archivo CSV
         df_productos.to_csv('InventarioPruebas.csv', sep=';', index=False)
         print("Cambios guardados en el archivo CSV.")
         
