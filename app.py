@@ -8,7 +8,6 @@ def actualizar_producto():
     colegio = input("Indique el colegio al que pertenece el producto: ")
     talla = input("Indique la talla del producto: ")
 
-    # Verificar si el producto existe
     producto_idx = df_productos[
         (df_productos['Tipo_producto'] == tipo) &
         (df_productos['Colegio_producto'] == colegio) &
@@ -16,32 +15,37 @@ def actualizar_producto():
     ].index
 
     if not producto_idx.empty:
-        print("¿Qué te gustaría actualizar?")
-        print("1. Cantidad del producto")
-        print("2. Tipo de producto")
-        print("3. Ambos")
-        opcion = input("Seleccione una opción (1, 2, 3): ")
+        accion = input("¿Quieres aumentar o reducir la cantidad? (aumentar/reducir): ").lower()
 
-        if opcion == "1" or opcion == "3":
-            nueva_cantidad = input("Indique la nueva cantidad del producto: ")
+        if accion == "aumentar" or accion == "reducir":
+            cantidad_cambio = int(input(f"¿Cuánto deseas {accion}?: "))
+
+            cantidad_actual = df_productos.at[producto_idx[0], 'Cantidad_producto']
+            
+            if accion == "reducir":
+                if cantidad_cambio > cantidad_actual:
+                    print("No se puede reducir la cantidad solicitada debido a falta de stock.")
+                    return  # Termina la función si no hay suficiente stock
+
+                # Calcular la nueva cantidad y aplicar la reducción
+                nueva_cantidad = cantidad_actual - cantidad_cambio
+            else:
+                # Calcular la nueva cantidad y aplicar el aumento
+                nueva_cantidad = cantidad_actual + cantidad_cambio
+
+
             df_productos.at[producto_idx[0], 'Cantidad_producto'] = nueva_cantidad
-            print(f"Cantidad actualizada: {nueva_cantidad}")
-        
-        if opcion == "2" or opcion == "3":
-            nuevo_tipo = input("Indique el nuevo tipo del producto: ")
-            df_productos.at[producto_idx[0], 'Tipo_producto'] = nuevo_tipo
-            print(f"Tipo de producto actualizado: {nuevo_tipo}")
-        
-        # Guardar los cambios en el archivo CSV
-        df_productos.to_csv('InventarioPruebas.csv', sep=';', index=False)
-        print("Cambios guardados en el archivo CSV.")
-        
+            print(f"Producto actualizado: {tipo}, {colegio}, {talla}, Nueva cantidad: {nueva_cantidad}")
+
+            # Aviso si la cantidad es menor a 20 unidades después de la actualización
+            if nueva_cantidad < 20:
+                print(f"Alerta: El producto '{tipo}' del colegio '{colegio}' y talla '{talla}' tiene pocas unidades: {nueva_cantidad}")
+        else:
+            print("Opción no válida. Por favor, elige 'aumentar' o 'reducir'.")
     else:
         print("El producto no existe en el inventario.")
 
     print(df_productos.head())
-
-# ESTO NO ES UNA DEMOSTRACION ajajblabla
 
 
 def eliminar_producto():
@@ -67,6 +71,7 @@ def eliminar_producto():
     print(f"Producto del tipo '{tipo}', colegio '{colegio}' y talla '{talla}' eliminado.")
 
     print(df_productos.head())
+
 def Agregar_producto():
     # Solicitar los datos del nuevo producto al usuario
     nuevo_producto = {
