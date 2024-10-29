@@ -1,5 +1,9 @@
 import pandas as pd
 from datetime import datetime
+import qrcode
+import matplotlib.pyplot as plt
+import os
+import time
 
 # Cargar el archivo CSV
 df_productos = pd.read_csv('InventarioPruebas.csv', encoding="utf-8", sep=";")
@@ -154,6 +158,26 @@ def Agregar_producto():
     Agregar_historial("Agregar", nuevo_producto["Tipo_producto"], nuevo_producto["Cantidad_producto"], nuevo_producto["Talla_producto"])
     if contar_registros_historial() > 20:
         EliminarRegistroAntiguo()
+
+    # Generar el código QR con los datos del producto (sin la cantidad)
+    data_qr = f"{nuevo_producto['Tipo_producto']}\n{nuevo_producto['Colegio_producto']}\n{nuevo_producto['Talla_producto']}"
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(data_qr)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    ruta_carpeta_qr = "QRs productos"
+    os.makedirs(ruta_carpeta_qr, exist_ok=True)
+    id_unico = int(time.time())
+
+    # Guardar el código QR como una imagen
+    img.save(os.path.join(ruta_carpeta_qr, f"qr_producto{id_unico}.png"))
+    print("Código QR generado y guardado")
 
     # Guardar los datos actualizados en el archivo CSV
     df_productos.to_csv('InventarioPruebas.csv', sep=';', index=False)
