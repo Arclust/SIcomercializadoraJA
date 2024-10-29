@@ -125,7 +125,7 @@ def eliminar_producto():
         
         # Agregar al historial
         Agregar_historial("Eliminar", tipo, cantidad, talla)
-        if contar_registros_historial > 20:
+        if contar_registros_historial() > 20:
             EliminarRegistroAntiguo()
 
         # Guardar los cambios en el archivo CSV
@@ -152,7 +152,7 @@ def Agregar_producto():
 
     # Agregar al historial
     Agregar_historial("Agregar", nuevo_producto["Tipo_producto"], nuevo_producto["Cantidad_producto"], nuevo_producto["Talla_producto"])
-    if contar_registros_historial > 20:
+    if contar_registros_historial() > 20:
         EliminarRegistroAntiguo()
 
     # Guardar los datos actualizados en el archivo CSV
