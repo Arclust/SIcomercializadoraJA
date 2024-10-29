@@ -100,7 +100,9 @@ def actualizar_producto():
                 EliminarRegistroAntiguo()
         else:
             return
-
+        cantidad_actual = df_productos.at[producto_idx[0], 'Cantidad_producto']
+        if cantidad_actual < 10:
+            print(f"Alerta: El producto '{tipo}' del colegio '{colegio}' y talla '{talla}' tiene pocas unidades: {cantidad_actual}")
         # Guardar los cambios en el archivo CSV
         df_productos.to_csv('InventarioPruebas.csv', sep=';', index=False)
         print("Cambios guardados en el archivo CSV.")
