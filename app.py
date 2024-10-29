@@ -80,7 +80,7 @@ def actualizar_producto():
             cantidad_anterior = df_productos.at[producto_idx[0], 'Cantidad_producto']
             df_productos.at[producto_idx[0], 'Cantidad_producto'] += adi_sus
             # Agregar al historial
-            Agregar_historial("Agregar", tipo, f"{cantidad_anterior} -> {cantidad_anterior + adi_sus}", talla)
+            Agregar_historial("Aumentar", tipo, f"{cantidad_anterior} -> {cantidad_anterior + adi_sus}", talla)
             if contar_registros_historial() > 20:
                 EliminarRegistroAntiguo()
         elif opcion == 2:
@@ -159,12 +159,13 @@ def Agregar_producto():
 
 def menu():
     opcion = 0
-    while opcion != 4:
+    while opcion != 5:
         print("OPCIONES")
         print("1. Agregar Producto")
         print("2. Eliminar Producto")
         print("3. Modificar Producto")
-        print("4. Salir")
+        print("4. Mostrar historial de modificaciones.")
+        print("5. Salir")
         opcion = int(input("Seleccione una opción:  "))
     
         if opcion == 3:
@@ -173,6 +174,8 @@ def menu():
             eliminar_producto()
         elif opcion == 1:
             Agregar_producto()
+        elif opcion == 4:
+            print(df_historial.tail(20))
 
 menu()
 
