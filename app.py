@@ -10,6 +10,33 @@ try:
 except FileNotFoundError:
     df_historial = pd.DataFrame(columns=["tipo_accion", "tipo_producto", "cantidad_h", "talla_h", "hora"])
 
+import pandas as pd
+
+def contar_registros_historial():
+    # Cargar el archivo historial.csv en un DataFrame
+    df = pd.read_csv("historial.csv")
+    # Obtener el número total de registros (filas)
+    total_registros = df.shape[0]
+    return total_registros
+
+def EliminarRegistroAntiguo():
+    # Cargar el archivo CSV en un DataFrame
+    df = pd.read_csv("historial.csv")
+    
+    # Verificar si el DataFrame tiene registros
+    if not df.empty:
+        # Eliminar la primera fila (el registro más antiguo)
+        df = df.iloc[1:]
+        
+        # Guardar el DataFrame actualizado nuevamente en el archivo CSV
+        df.to_csv("historial.csv", index=False)
+        print("Registro más antiguo eliminado.")
+    else:
+        print("No hay registros para eliminar.")
+
+
+
+
 def Agregar_historial(accion, producto, cantidad, talla):
     # Crear un nuevo registro
     ultima_modificacion = {
@@ -54,7 +81,8 @@ def actualizar_producto():
             df_productos.at[producto_idx[0], 'Cantidad_producto'] += adi_sus
             # Agregar al historial
             Agregar_historial("Agregar", tipo, f"{cantidad_anterior} -> {cantidad_anterior + adi_sus}", talla)
-        
+            if contar_registros_historial() > 20:
+                EliminarRegistroAntiguo()
         elif opcion == 2:
             adi_sus = int(input("Introduzca la cantidad en que desea disminuir este producto: "))
             if adi_sus > df_productos.at[producto_idx[0], 'Cantidad_producto']:
@@ -64,6 +92,8 @@ def actualizar_producto():
             df_productos.at[producto_idx[0], 'Cantidad_producto'] -= adi_sus
             # Agregar al historial
             Agregar_historial("Disminuir", tipo, f"{cantidad_anterior} -> {cantidad_anterior - adi_sus}", talla)
+            if contar_registros_historial() > 2:
+                EliminarRegistroAntiguo()
         else:
             return
 
