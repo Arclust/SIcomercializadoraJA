@@ -92,7 +92,7 @@ def actualizar_producto():
             df_productos.at[producto_idx[0], 'Cantidad_producto'] -= adi_sus
             # Agregar al historial
             Agregar_historial("Disminuir", tipo, f"{cantidad_anterior} -> {cantidad_anterior - adi_sus}", talla)
-            if contar_registros_historial() > 2:
+            if contar_registros_historial() > 20:
                 EliminarRegistroAntiguo()
         else:
             return
@@ -125,6 +125,8 @@ def eliminar_producto():
         
         # Agregar al historial
         Agregar_historial("Eliminar", tipo, cantidad, talla)
+        if contar_registros_historial > 20:
+            EliminarRegistroAntiguo()
 
         # Guardar los cambios en el archivo CSV
         df_productos.to_csv('InventarioPruebas.csv', sep=';', index=False)
@@ -150,6 +152,8 @@ def Agregar_producto():
 
     # Agregar al historial
     Agregar_historial("Agregar", nuevo_producto["Tipo_producto"], nuevo_producto["Cantidad_producto"], nuevo_producto["Talla_producto"])
+    if contar_registros_historial > 20:
+        EliminarRegistroAntiguo()
 
     # Guardar los datos actualizados en el archivo CSV
     df_productos.to_csv('InventarioPruebas.csv', sep=';', index=False)
