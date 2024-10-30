@@ -62,7 +62,7 @@ def Agregar_historial(accion, producto, cantidad, talla):
     df_historial.to_csv('historial.csv', index=False, encoding="utf-8", sep=";")
 
 def actualizar_producto():
-    tipo = input("Indique el tipo del producto: ")
+    tipo = input("\nIndique el tipo del producto: ")
     colegio = input("Indique el colegio al que pertenece el producto: ")
     talla = input("Indique la talla del producto: ")
 
@@ -74,10 +74,33 @@ def actualizar_producto():
     ].index
 
     if not producto_idx.empty:
-        print("¿Qué te gustaría actualizar?")
+        print("\n¿Qué te gustaría actualizar?")
         print("1. Aumentar las Unidades de un producto")
         print("2. Disminuir las unidades de un producto")
         opcion = int(input("Seleccione una opción (1, 2): "))
+        
+        if opcion == 1:
+            adi_sus = int(input("\nIntroduzca la cantidad de prendas a agregar: "))
+            cantidad_anterior = df_productos.at[producto_idx[0], 'Cantidad_producto']
+            df_productos.at[producto_idx[0], 'Cantidad_producto'] += adi_sus
+            # Agregar al historial
+            Agregar_historial("Aumentar", tipo, f"{cantidad_anterior} -> {cantidad_anterior + adi_sus}", talla)
+            if contar_registros_historial() > 20:
+                EliminarRegistroAntiguo()
+        elif opcion == 2:
+            adi_sus = int(input("\nIntroduzca la cantidad en que desea disminuir este producto: "))
+            if adi_sus > df_productos.at[producto_idx[0], 'Cantidad_producto']:
+                print("\nERROR. SE DESEAN ELIMINAR MÁS INSTANCIAS DE LAS QUE HAY DISPONIBLES.")
+                return
+            cantidad_anterior = df_productos.at[producto_idx[0], 'Cantidad_producto']
+            df_productos.at[producto_idx[0], 'Cantidad_producto'] -= adi_sus
+            # Agregar al historial
+            Agregar_historial("Disminuir", tipo, f"{cantidad_anterior} -> {cantidad_anterior - adi_sus}", talla)
+            if contar_registros_historial() > 20:
+                EliminarRegistroAntiguo()
+        else:
+            return
+
         
         if opcion == 1:
             adi_sus = int(input("Introduzca la cantidad de prendas a agregar: "))
@@ -103,12 +126,13 @@ def actualizar_producto():
 
         # Guardar los cambios en el archivo CSV
         df_productos.to_csv('InventarioPruebas.csv', sep=';', index=False)
-        print("Cambios guardados en el archivo CSV.")
+        print("\nCambios guardados en el archivo CSV.")
+        cantidad_actual = df_productos.at[producto_idx[0], 'Cantidad_producto']
+        if cantidad_actual < 10:
+            print(f"¡ALERTA!: El producto '{tipo}' del colegio '{colegio}' y talla '{talla}' tiene pocas unidades: {cantidad_actual}")
         
     else:
         print("El producto no existe en el inventario.")
-
-    print(df_productos.head())
 
 def eliminar_producto():
     tipo = input("Indique el tipo del producto: ")
@@ -144,7 +168,8 @@ def Agregar_producto():
         "Tipo_producto": input("Introduce el tipo de producto: "),
         "Colegio_producto": input("Introduce el colegio al que pertenece: "),
         "Talla_producto": input("Introduce la talla del producto: "),
-        "Cantidad_producto": input("Introduce la cantidad de productos: ")
+        "Cantidad_producto": input("Introduce la cantidad de productos: "),
+        "Precio_producto": input("Introduce el precio de los productos: ")
     }
 
     # Convertir los datos en un DataFrame y añadir a los datos existentes
@@ -160,7 +185,7 @@ def Agregar_producto():
         EliminarRegistroAntiguo()
 
     # Generar el código QR con los datos del producto (sin la cantidad)
-    data_qr = f"{nuevo_producto['Tipo_producto']}\n{nuevo_producto['Colegio_producto']}\n{nuevo_producto['Talla_producto']}"
+    data_qr = f"{nuevo_producto['Tipo_producto']}\n{nuevo_producto['Colegio_producto']}\n{nuevo_producto['Talla_producto']}\n{nuevo_producto['Precio_producto']}"
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -188,7 +213,7 @@ def Agregar_producto():
 def menu():
     opcion = 0
     while opcion != 5:
-        print("OPCIONES")
+        print("\nOPCIONES")
         print("1. Agregar Producto")
         print("2. Eliminar Producto")
         print("3. Modificar Producto")
