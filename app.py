@@ -100,7 +100,30 @@ def actualizar_producto():
                 EliminarRegistroAntiguo()
         else:
             return
+
         
+        if opcion == 1:
+            adi_sus = int(input("Introduzca la cantidad de prendas a agregar: "))
+            cantidad_anterior = df_productos.at[producto_idx[0], 'Cantidad_producto']
+            df_productos.at[producto_idx[0], 'Cantidad_producto'] += adi_sus
+            # Agregar al historial
+            Agregar_historial("Aumentar", tipo, f"{cantidad_anterior} -> {cantidad_anterior + adi_sus}", talla)
+            if contar_registros_historial() > 20:
+                EliminarRegistroAntiguo()
+        elif opcion == 2:
+            adi_sus = int(input("Introduzca la cantidad en que desea disminuir este producto: "))
+            if adi_sus > df_productos.at[producto_idx[0], 'Cantidad_producto']:
+                print("ERROR. SE DESEAN ELIMINAR MÁS INSTANCIAS DE LAS QUE HAY DISPONIBLES.")
+                return
+            cantidad_anterior = df_productos.at[producto_idx[0], 'Cantidad_producto']
+            df_productos.at[producto_idx[0], 'Cantidad_producto'] -= adi_sus
+            # Agregar al historial
+            Agregar_historial("Disminuir", tipo, f"{cantidad_anterior} -> {cantidad_anterior - adi_sus}", talla)
+            if contar_registros_historial() > 20:
+                EliminarRegistroAntiguo()
+        else:
+            return
+
         # Guardar los cambios en el archivo CSV
         df_productos.to_csv('InventarioPruebas.csv', sep=';', index=False)
         print("\nCambios guardados en el archivo CSV.")
@@ -110,7 +133,6 @@ def actualizar_producto():
         
     else:
         print("El producto no existe en el inventario.")
-
 
 def eliminar_producto():
     tipo = input("Indique el tipo del producto: ")
