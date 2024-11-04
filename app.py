@@ -210,15 +210,43 @@ def Agregar_producto():
     print("Producto añadido exitosamente.")
     print(df_productos.head())
 
+def Filtrar():
+    print("OPCIONES DE FILTRADO")
+    print("1. Producto")
+    print("2. Colegio")
+    print("3. Talla")
+    print("4. Cantidad menor/igual que")
+    print("5. Cantidad mayor/igual que")
+    opcion = int(input("Ingrese una opción: "))
+    
+    if opcion == 1:
+        tipo = input("Ingrese el tipo de producto (por ejemplo, Poleron): ")
+        print(df_productos[df_productos['Tipo_producto'] == tipo])
+    elif opcion == 2:
+        colegio = input("Ingrese el nombre del colegio: ")
+        print(df_productos[df_productos['Colegio_producto'] == colegio])
+    elif opcion == 3:
+        talla = input("Ingrese la talla: ")
+        print(df_productos[df_productos['Talla_producto'] == talla])
+    elif opcion == 4:
+        cantidad = int(input("Ingrese la cantidad máxima: "))
+        print(df_productos[df_productos['Cantidad_producto'] <= cantidad])
+    elif opcion == 5:
+        cantidad = int(input("Ingrese la cantidad mínima: "))
+        print(df_productos[df_productos['Cantidad_producto'] >= cantidad])
+    else:
+        print("Opción no válida.")
+
 def menu():
     opcion = 0
-    while opcion != 5:
+    while opcion != 6:
         print("\nOPCIONES")
         print("1. Agregar Producto")
         print("2. Eliminar Producto")
         print("3. Modificar Producto")
         print("4. Mostrar historial de modificaciones.")
-        print("5. Salir")
+        print ("5. Filtrar")
+        print("6. Salir")
         opcion = int(input("Seleccione una opción:  "))
     
         if opcion == 3:
@@ -229,6 +257,8 @@ def menu():
             Agregar_producto()
         elif opcion == 4:
             print(df_historial.tail(20))
+        elif opcion == 5:
+            Filtrar()
 
 menu()
 
