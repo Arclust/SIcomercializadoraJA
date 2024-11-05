@@ -1,67 +1,71 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:csv/csv.dart';
-import 'package:qr_flutter/qr_flutter.dart';
+import 'funcs.dart' as funcs;
+//import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Generador de Código QR e Historial',
+      title: 'SI - uniformes',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 41, 125, 139)),
+        useMaterial3: true,
       ),
-      home: HomePage(),
+      home: const MyHomePage(title: 'SI - uniformes'),
     );
   }
 }
 
-class HomePage extends StatelessWidget {
-  final HistorialManager historialManager = HistorialManager();
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
 
+  final String title;
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Inicio"),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          // ... other widgets
           children: [
             ElevatedButton(
-              onPressed: () async {
-                // Ejemplo de agregar un registro al historial
-                await historialManager.agregarHistorial(
-                    "Agregar", "ProductoX", 5, "L");
-                print("Registro agregado al historial.");
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AddProductScreen()),
+                );
               },
-              child: Text("Agregar al Historial"),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                // Ejemplo de contar registros
-                int total = await historialManager.contarRegistrosHistorial();
-                print("Total de registros: $total");
-              },
-              child: Text("Contar Registros"),
+              child: Text('Agregar producto'),
             ),
             ElevatedButton(
               onPressed: () {
-                // Navegar al generador de QR
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => QRCodeGenerator(data: "Datos de Ejemplo"),
-                  ),
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(builder: (context) => ScanQrScreen()),
+                // );
               },
-              child: Text("Generar Código QR"),
+              child: Text('Modificar producto'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+              },
+              child: Text('Eliminar producto'),
             ),
           ],
         ),
@@ -70,95 +74,128 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class HistorialManager {
-  // Obtiene el directorio de documentos del dispositivo
-  Future<String> _getFilePath(String fileName) async {
-    final directory = await getApplicationDocumentsDirectory();
-    return '${directory.path}/$fileName';
-  }
 
-  // Cargar el historial existente o crear uno nuevo si no existe
-  Future<List<List<dynamic>>> cargarHistorial() async {
-    final filePath = await _getFilePath('historial.csv');
-    final file = File(filePath);
 
-    if (await file.exists()) {
-      final content = await file.readAsString();
-      return CsvToListConverter().convert(content);
-    } else {
-      // Crear un archivo nuevo con encabezados
-      await file.writeAsString(const ListToCsvConverter().convert([
-        ["tipo_accion", "tipo_producto", "cantidad_h", "talla_h", "hora"]
-      ]));
-      return [];
-    }
-  }
 
-  // Contar registros en el historial
-  Future<int> contarRegistrosHistorial() async {
-    final historial = await cargarHistorial();
-    return historial.length - 1; // Resta 1 para no contar la fila de encabezado
-  }
 
-  // Eliminar el registro más antiguo (segunda fila del historial)
-  Future<void> eliminarRegistroAntiguo() async {
-    final filePath = await _getFilePath('historial.csv');
-    final file = File(filePath);
 
-    if (await file.exists()) {
-      final historial = await cargarHistorial();
-      if (historial.length > 1) {
-        // Eliminar el primer registro de datos
-        historial.removeAt(1);
-        final updatedContent = const ListToCsvConverter().convert(historial);
-        await file.writeAsString(updatedContent);
-        print("Registro más antiguo eliminado.");
-      } else {
-        print("No hay registros para eliminar.");
-      }
-    }
-  }
-
-  // Agregar un nuevo registro al historial
-  Future<void> agregarHistorial(
-      String accion, String producto, int cantidad, String talla) async {
-    final filePath = await _getFilePath('historial.csv');
-    final file = File(filePath);
-    final DateTime now = DateTime.now();
-    final nuevoRegistro = [
-      accion,
-      producto,
-      cantidad,
-      talla,
-      now.toIso8601String()
-    ];
-
-    final historial = await cargarHistorial();
-    historial.add(nuevoRegistro);
-    final updatedContent = const ListToCsvConverter().convert(historial);
-    await file.writeAsString(updatedContent);
-  }
+class AddProductScreen extends StatefulWidget {
+  @override
+  _AddProductScreenState createState() => _AddProductScreenState();
 }
 
-// Widget para generar el código QR
-class QRCodeGenerator extends StatelessWidget {
-  final String data;
-
-  QRCodeGenerator({required this.data});
+class _AddProductScreenState extends State<AddProductScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _schoolController = TextEditingController();
+  final TextEditingController _sizeController = TextEditingController();
+  final TextEditingController _unitsController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Generador de Código QR"),
+        title: Text('Agregar Producto'),
       ),
-      body: Center(
-        child: QrImage(
-          data: data,
-          version: QrVersions.auto,
-          size: 200.0,
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(labelText: 'Tipo de producto'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '¡Falta el nombre del producto!';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _schoolController,
+                decoration: InputDecoration(labelText: 'Colegio del producto'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '¡Falta el colegio al que pertenece!';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _sizeController,
+                decoration: InputDecoration(labelText: 'Talla del producto'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '¡Falta la talla la cual es!';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _unitsController,
+                decoration: InputDecoration(labelText: 'Cantidad del producto'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '¡Falta una cantidad inicial!';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _priceController,
+                decoration: InputDecoration(labelText: 'Precio del producto'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '¡Falta el precio por unidad!';
+                  }
+                  return null;
+                },
+              ),
+              // ... otros TextFormField para descripción y precio
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    String urlQRcode = funcs.AgregarProducto(_nameController.text,_schoolController.text,_sizeController.text,_unitsController.text,_priceController.text);
+                    print('${urlQRcode}');
+                    Navigator.pop(context);
+                  }
+                },
+                child: Text('Guardar Producto'),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
+
+
+// class ScanQrScreen extends StatefulWidget {
+//   @override
+//   _ScanQrScreenState createState() => _ScanQrScreenState();
+// }
+
+// class _ScanQrScreenState extends State<ScanQrScreen> {
+//   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+//   var qrResult;
+
+//   Iniciar y parar el escaneo
+//   void _onQRViewCreated(QRViewController controller) {
+//     ...
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: QRView(
+//         key: qrKey,
+//         onQRViewCreated: _onQRViewCreated,
+//       ),
+//     );
+//   }
+// }
