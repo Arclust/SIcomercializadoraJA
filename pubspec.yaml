@@ -1,0 +1,12 @@
+name: appdart
+description: aplicacion movil
+
+environment:
+  sdk: '^3.5.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  csv: ^5.0.0
+  path_provider: ^2.0.9
+  qr_flutter: ^4.0.0

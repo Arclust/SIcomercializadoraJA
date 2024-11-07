@@ -4,6 +4,25 @@ import qrcode
 import matplotlib.pyplot as plt
 import os
 import time
+from flask import Flask, jsonify
+
+@app.route('/data')
+def get_data():
+    # Lógica para obtener los datos
+    data = {'message': 'Hola desde Python'}
+    return jsonify(data)
+import 'package:http/http.dart' as http;
+
+Future<void> fetchData() async {
+    final response = await http.get(Uri.parse('http://tu_servidor/data'));
+    if (response.statusCode == 200) {
+        // Procesar los datos
+        final data = jsonDecode(response.body);
+        print(data['message']);
+    } else {
+      // Manejar errores
+    }
+}
 
 # Cargar el archivo CSV
 df_productos = pd.read_csv('InventarioPruebas.csv', encoding="utf-8", sep=";")
