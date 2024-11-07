@@ -4,6 +4,7 @@ import 'package:csv/csv.dart';
 import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as Im;
+import 'package:flutter/services.dart' show rootBundle;
 
 // class MyApp extends StatelessWidget {
 //   @override
@@ -19,55 +20,103 @@ import 'package:image/image.dart' as Im;
 // }
 
 
-String AgregarProducto(String tipo, String colegio, String talla, String cantidad, String precio) {
-  String data = '$tipo-$colegio-$talla-$cantidad-$precio';
-  final qrImage = QrImage(
-    data: data,
-    version: QrVersions.auto,
-    size: 200.0,
-  );
-  final imagePath = 'QRs productos/qr_$tipo.png';
-
-  final ui.Image image = await qrImage.toImage(200);
-  final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-  Im.Image img = Im.decodePng(byteData!.buffer.asUint8List());
-  Im.Image imageToSave = Im.copyResize(img, width: 200);
-  Im.encodePng(new File(imagePath), imageToSave);
-
-  return imagePath;
-}
-
-
-
-
-List<List<dynamic>> leerCsv(String rutaArchivo) {
+Future<String> AgregarProducto(String tipo, String colegio, String talla, String cantidad, String precio) async {
   try {
-    final file =(rutaArchivo);
-    final csvString = file.readAsStringSync();
-    return const CsvToListConverter().convert(csvString);
+    await InsertarFilaCSV('assets/InventarioPruebas.csv',['$tipo;$colegio;$talla;$cantidad;$precio']);
   } catch (e) {
-    print('Error al leer el archivo CSV:  $e');
-    return [];
+    print('Error: $e');
+  }
+  // String data = '$tipo-$colegio-$talla-$cantidad-$precio';
+  // final qrImage = QrImage( 
+  //   data: data,
+  //   version: QrVersions.auto,
+  //   size: 200.0,
+  // );
+  // final imagePath = 'QRs productos/qr_$tipo.png';
+
+  // final ui.Image image = await qrImage.toImage(200);
+  // final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+  // Im.Image img = Im.decodePng(byteData!.buffer.asUint8List());
+  // Im.Image imageToSave = Im.copyResize(img, width: 200);
+  // Im.encodePng(new File(imagePath), imageToSave);
+  return '';
+}
+
+Future<String> lecturaCSV(String rutaArchivo) async {
+  try {
+    return rootBundle.loadString(rutaArchivo);
+  } catch (e) {
+    print('Error al cargar el archivo CSV: $e');
+    return ''; // O maneja el error de otra forma
   }
 }
 
-int contarRegistrosHistorial(String rutaArchivo) {
-  final datos = leerCsv(rutaArchivo);
-  return datos.length;
+
+Future<void> InsertarFilaCSV(String rutaArchivo, List<String> fila) async {
+  try {
+
+    // Lee el contenido del archivo CSV
+    final String csvContent = await rootBundle.loadString(rutaArchivo);
+    // Convierte el contenido del archivo CSV a una lista de filas
+    final List<List<dynamic>> filas = const CsvToListConverter().convert(csvContent);
+    // Agrega la nueva fila a la lista de filas
+    filas.add(fila);
+    // Convierte la lista de filas de nuevo a un string CSV
+    final String newCsvContent = const ListToCsvConverter().convert(filas);
+    await File(rutaArchivo).writeAsString(newCsvContent);
+    // Escribe el nuevo contenido CSV en el archivo
+  } catch (e) {
+    print('Error al insertar fila en el archivo CSV: $e');
+    // Maneja el error de otra forma
+  }
 }
 
-void eliminarRegistroAntiguo(String rutaArchivo) {
-  final datos = leerCsv(rutaArchivo);
-  if (datos.isNotEmpty) {
-    datos.removeAt(0);
+
+
+// Future<void> InsertarFilaCSV(String nombreArchivo, List<String> fila) async {
+//   try {
+//     // Obtiene el directorio de documentos de la aplicación
+//     final directory = await getApplicationDocumentsDirectory();
+//     final rutaArchivo = '${directory.path}/$nombreArchivo';
+
+//     // Si el archivo no existe en almacenamiento local, cópialo de assets
+//     if (!File(rutaArchivo).existsSync()) {
+//       final String contenidoInicial = await rootBundle.loadString(nombreArchivo);
+//       await File(rutaArchivo).writeAsString(contenidoInicial);
+//     }
+
+//     // Lee el contenido del archivo CSV desde el almacenamiento local
+//     final String csvContent = await File(rutaArchivo).readAsString();
+//     // Convierte el contenido del archivo CSV a una lista de filas
+//     final List<List<dynamic>> filas = CsvToListConverter().convert(csvContent);
+//     // Agrega la nueva fila a la lista de filas
+//     filas.add(fila);
+//     // Convierte la lista de filas de nuevo a un string CSV
+//     final String newCsvContent = ListToCsvConverter().convert(filas);
+//     // Escribe el nuevo contenido CSV en el archivo local
+//     await File(rutaArchivo).writeAsString(newCsvContent);
+//   } catch (e) {
+//     print('Error al insertar fila en el archivo CSV: $e');
+//   }
+// }
+
+// int contarRegistrosHistorial(String rutaArchivo) {
+//   final datos = leerCsv(rutaArchivo);
+//   return datos.length;
+// }
+
+// void eliminarRegistroAntiguo(String rutaArchivo) {
+//   final datos = leerCsv(rutaArchivo);
+//   if (datos.isNotEmpty) {
+//     datos.removeAt(0);
     
-    final csv = const ListToCsvConverter().convert(datos);
-    File(rutaArchivo).writeAsStringSync(csv);
-    print('Registro más antiguo eliminado.');
-  } else {
-    print('No hay registros para eliminar.');
-  }
-}
+//     final csv = const ListToCsvConverter().convert(datos);
+//     File(rutaArchivo).writeAsStringSync(csv);
+//     print('Registro más antiguo eliminado.');
+//   } else {
+//     print('No hay registros para eliminar.');
+//   }
+// }
 
 // class HomePage extends StatelessWidget {
 //   final HistorialManager historialManager = HistorialManager();

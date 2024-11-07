@@ -51,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   MaterialPageRoute(builder: (context) => AddProductScreen()),
                 );
               },
-              child: Text('Agregar producto'),
+              child: const Text('Agregar producto'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -60,12 +60,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 //   MaterialPageRoute(builder: (context) => ScanQrScreen()),
                 // );
               },
-              child: Text('Modificar producto'),
+              child: const Text('Modificar producto'),
             ),
             ElevatedButton(
               onPressed: () {
               },
-              child: Text('Eliminar producto'),
+              child: const Text('Eliminar producto'),
             ),
           ],
         ),
@@ -80,6 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 class AddProductScreen extends StatefulWidget {
+  const AddProductScreen({super.key});
+
   @override
   _AddProductScreenState createState() => _AddProductScreenState();
 }
@@ -96,17 +98,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Agregar Producto'),
+        title: const Text('Agregar Producto'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(labelText: 'Tipo de producto'),
+                decoration: const InputDecoration(labelText: 'Tipo de producto'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return '¡Falta el nombre del producto!';
@@ -116,7 +118,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ),
               TextFormField(
                 controller: _schoolController,
-                decoration: InputDecoration(labelText: 'Colegio del producto'),
+                decoration: const InputDecoration(labelText: 'Colegio del producto'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return '¡Falta el colegio al que pertenece!';
@@ -126,7 +128,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ),
               TextFormField(
                 controller: _sizeController,
-                decoration: InputDecoration(labelText: 'Talla del producto'),
+                decoration: const InputDecoration(labelText: 'Talla del producto'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return '¡Falta la talla la cual es!';
@@ -136,7 +138,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ),
               TextFormField(
                 controller: _unitsController,
-                decoration: InputDecoration(labelText: 'Cantidad del producto'),
+                decoration: const InputDecoration(labelText: 'Cantidad del producto'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return '¡Falta una cantidad inicial!';
@@ -146,7 +148,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ),
               TextFormField(
                 controller: _priceController,
-                decoration: InputDecoration(labelText: 'Precio del producto'),
+                decoration: const InputDecoration(labelText: 'Precio del producto'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return '¡Falta el precio por unidad!';
@@ -156,14 +158,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ),
               // ... otros TextFormField para descripción y precio
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    String urlQRcode = funcs.AgregarProducto(_nameController.text,_schoolController.text,_sizeController.text,_unitsController.text,_priceController.text);
-                    print('${urlQRcode}');
+                    String urlQRcode = await funcs.AgregarProducto(_nameController.text,_schoolController.text,_sizeController.text,_unitsController.text,_priceController.text);
+                    print(urlQRcode);
                     Navigator.pop(context);
                   }
                 },
-                child: Text('Guardar Producto'),
+                child: const Text('Guardar Producto'),
               ),
             ],
           ),
