@@ -19,7 +19,7 @@ import 'package:flutter/services.dart' show rootBundle;
 
 Future<String> AgregarProducto(String tipo, String colegio, String talla, String cantidad, String precio) async {
   try {
-    await InsertarFilaCSV('InventarioPruebas.csv',['$tipo;$colegio;$talla;$cantidad;$precio']);
+    await InsertarFilaCSV('Inventario.csv',['$tipo;$colegio;$talla;$cantidad;$precio']);
   } catch (e) {
     print('Error: $e');
   }
@@ -48,11 +48,11 @@ Future<String> lecturaCSV(String rutaArchivo) async {
   }
 }
 
-
 Future<void> InsertarFilaCSV(String nombreArchivo, List<String> fila) async {
   try {
     // 1. Obtén la ruta del directorio de documentos de la aplicación.
     final directory = await getApplicationDocumentsDirectory();
+    print(directory.path);
     final rutaArchivo = '${directory.path}/$nombreArchivo';
 
     // 2. Lee el contenido del archivo CSV utilizando rootBundle (si existe).
