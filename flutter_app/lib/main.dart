@@ -48,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddProductScreen()),
+                  MaterialPageRoute(builder: (context) => const AddProductScreen()),
                 );
               },
               child: const Text('Agregar producto'),
