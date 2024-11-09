@@ -16,6 +16,9 @@ import 'package:flutter/services.dart' show rootBundle;
 //   }
 // }
 
+Future<void> CrearInventario() async{
+  print("a");
+}
 
 Future<String> AgregarProducto(String tipo, String colegio, String talla, String cantidad, String precio) async {
   try {
