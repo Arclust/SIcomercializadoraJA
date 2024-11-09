@@ -1,9 +1,6 @@
 import 'dart:io';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:csv/csv.dart';
-import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
-import 'package:image/image.dart' as Im;
 import 'package:flutter/services.dart' show rootBundle;
 
 // class MyApp extends StatelessWidget {
@@ -22,7 +19,7 @@ import 'package:flutter/services.dart' show rootBundle;
 
 Future<String> AgregarProducto(String tipo, String colegio, String talla, String cantidad, String precio) async {
   try {
-    await InsertarFilaCSV('assets/InventarioPruebas.csv',['$tipo;$colegio;$talla;$cantidad;$precio']);
+    await InsertarFilaCSV('InventarioPruebas.csv',['$tipo;$colegio;$talla;$cantidad;$precio']);
   } catch (e) {
     print('Error: $e');
   }
