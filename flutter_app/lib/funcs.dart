@@ -52,22 +52,35 @@ Future<String> lecturaCSV(String rutaArchivo) async {
 }
 
 
-Future<void> InsertarFilaCSV(String rutaArchivo, List<String> fila) async {
+Future<void> InsertarFilaCSV(String nombreArchivo, List<String> fila) async {
   try {
+    // 1. Obtén la ruta del directorio de documentos de la aplicación.
+    final directory = await getApplicationDocumentsDirectory();
+    final rutaArchivo = '${directory.path}/$nombreArchivo';
 
-    // Lee el contenido del archivo CSV
-    final String csvContent = await rootBundle.loadString(rutaArchivo);
-    // Convierte el contenido del archivo CSV a una lista de filas
+    // 2. Lee el contenido del archivo CSV utilizando rootBundle (si existe).
+    String csvContent = "";
+    try {
+      csvContent = await rootBundle.loadString('assets/$nombreArchivo');
+    } catch (e) {
+      print("No se pudo leer el archivo CSV desde assets: $e");
+      // El archivo no existe en assets, se creará uno nuevo.
+    }
+
+    // 3. Convierte el contenido del archivo CSV a una lista de filas.
     final List<List<dynamic>> filas = const CsvToListConverter().convert(csvContent);
-    // Agrega la nueva fila a la lista de filas
+
+    // 4. Agrega la nueva fila a la lista de filas.
     filas.add(fila);
-    // Convierte la lista de filas de nuevo a un string CSV
+
+    // 5. Convierte la lista de filas de nuevo a un string CSV.
     final String newCsvContent = const ListToCsvConverter().convert(filas);
+
+    // 6. Escribe el nuevo contenido CSV en el archivo en el directorio de documentos.
     await File(rutaArchivo).writeAsString(newCsvContent);
-    // Escribe el nuevo contenido CSV en el archivo
+
   } catch (e) {
     print('Error al insertar fila en el archivo CSV: $e');
-    // Maneja el error de otra forma
   }
 }
 
