@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'funcs.dart' as funcs;
 //import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -171,11 +173,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    String urlQRcode = await funcs.AgregarProducto(_nameController.text,_schoolController.text,_sizeController.text,_unitsController.text,_priceController.text);
-                    print(urlQRcode);
+                    List<dynamic> NuevoProducto = await funcs.AgregarProducto(_nameController.text,_schoolController.text,_sizeController.text,_unitsController.text,_priceController.text);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const ProductDetailsScreen(nombre: "a",colegio: "a",talla: "a",cantidad: 10,precio: 1000,)),
+                      MaterialPageRoute(builder: (context) => ProductDetailsScreen(nombre: NuevoProducto[0],colegio: NuevoProducto[1],talla: NuevoProducto[2],cantidad: NuevoProducto[3],precio: NuevoProducto[4], direccionqr: NuevoProducto[5],)),
                     );
                   }
                 },
@@ -191,14 +192,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
 
 
-//PANTALLA PRODUCTO
+//PANTALLA DE DETALLES PRODUCTO
 
 class ProductDetailsScreen extends StatefulWidget {
   final String nombre;
   final String colegio;
   final String talla;
-  final int cantidad;
-  final double precio;
+  final String cantidad;
+  final String precio;
+  final String direccionqr;
 
   const ProductDetailsScreen({
     super.key,
@@ -207,6 +209,7 @@ class ProductDetailsScreen extends StatefulWidget {
     required this.talla,
     required this.cantidad,
     required this.precio,
+    required this.direccionqr,
   });
 
   @override
@@ -216,6 +219,7 @@ class ProductDetailsScreen extends StatefulWidget {
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   @override
   Widget build(BuildContext context) {
+    final File imageFile = File(widget.direccionqr);
     return Scaffold(
       appBar: AppBar(
         title: Text('Detalles del Producto'),
@@ -230,13 +234,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             Text('Talla: ${widget.talla}'),
             Text('Cantidad: ${widget.cantidad}'),
             Text('Precio: ${widget.precio}'),
-            SizedBox(height: 16.0), // Add some spacing
-            Image.asset('assets/images/placeholder.png'),
+            SizedBox(height: 16.0), // Add some spacing,
+            Image.file(imageFile),
             const SizedBox(height: 16.0), // Add some spacing between image and button
             ElevatedButton(
-              onPressed: () {
-                // Add your download logic here, or remove the onPressed if you just want a visual button
-                print('Download button pressed');
+              onPressed: () async {
+                await funcs.GuardarArchivo(imageFile, context);
               },
               child: const Text('Descargar QR'),
             ),
@@ -356,7 +359,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const ProductDetailsScreen(nombre: "a",colegio: "a",talla: "a",cantidad: 10,precio: 1000,)),
+                            MaterialPageRoute(builder: (context) => ProductDetailsScreen(nombre: elemento[0],colegio: elemento[1],talla: elemento[2],cantidad: elemento[3],precio: elemento[4], direccionqr: elemento[5],)),
                           );
                         },
                         child: Text(elemento[0]),
