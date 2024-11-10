@@ -61,12 +61,21 @@ class _MyHomePageState extends State<MyHomePage> {
                 //   MaterialPageRoute(builder: (context) => ScanQrScreen()),
                 // );
               },
-              child: const Text('Modificar producto'),
+              child: const Text('Actualizar producto'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SearchScreen()),
+                );
+              },
+              child: const Text('Buscador de productos'),
             ),
             ElevatedButton(
               onPressed: () {
               },
-              child: const Text('Eliminar producto'),
+              child: const Text('Generar reporte'),
             ),
           ],
         ),
@@ -79,6 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 
+// PANTALLA AGREGAR PRODUCTOS
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
@@ -163,7 +173,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   if (_formKey.currentState!.validate()) {
                     String urlQRcode = await funcs.AgregarProducto(_nameController.text,_schoolController.text,_sizeController.text,_unitsController.text,_priceController.text);
                     print(urlQRcode);
-                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ProductDetailsScreen(nombre: "a",colegio: "a",talla: "a",cantidad: 10,precio: 1000,)),
+                    );
                   }
                 },
                 child: const Text('Guardar Producto'),
@@ -178,27 +191,163 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
 
 
-// class ScanQrScreen extends StatefulWidget {
-//   @override
-//   _ScanQrScreenState createState() => _ScanQrScreenState();
-// }
+//PANTALLA PRODUCTO
 
-// class _ScanQrScreenState extends State<ScanQrScreen> {
-//   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-//   var qrResult;
+class ProductDetailsScreen extends StatefulWidget {
+  final String nombre;
+  final String colegio;
+  final String talla;
+  final int cantidad;
+  final double precio;
 
-//   Iniciar y parar el escaneo
-//   void _onQRViewCreated(QRViewController controller) {
-//     ...
-//   }
+  const ProductDetailsScreen({
+    super.key,
+    required this.nombre,
+    required this.colegio,
+    required this.talla,
+    required this.cantidad,
+    required this.precio,
+  });
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: QRView(
-//         key: qrKey,
-//         onQRViewCreated: _onQRViewCreated,
-//       ),
-//     );
-//   }
-// }
+  @override
+  _ProductDetailsScreenState createState() => _ProductDetailsScreenState();
+}
+
+class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Detalles del Producto'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Nombre: ${widget.nombre}'),
+            Text('Colegio: ${widget.colegio}'),
+            Text('Talla: ${widget.talla}'),
+            Text('Cantidad: ${widget.cantidad}'),
+            Text('Precio: ${widget.precio}'),
+            SizedBox(height: 16.0), // Add some spacing
+            Image.asset('assets/images/placeholder.png'),
+            const SizedBox(height: 16.0), // Add some spacing between image and button
+            ElevatedButton(
+              onPressed: () {
+                // Add your download logic here, or remove the onPressed if you just want a visual button
+                print('Download button pressed');
+              },
+              child: const Text('Descargar QR'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+//PANTALLA BUSQUEDA CON FILTROS
+
+
+class SearchScreen extends StatefulWidget {
+  const SearchScreen({super.key});
+
+  @override
+  _SearchScreenState createState() => _SearchScreenState();
+}
+
+class _SearchScreenState extends State<SearchScreen> {
+  String? selectedName;
+  String? selectedCollege;
+  String? selectedSize;
+  RangeValues quantityRange = const RangeValues(0, 1000);
+  RangeValues priceRange = const RangeValues(0, 50000);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Filtros de Búsqueda'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              onChanged: (value) {
+                setState(() {
+                  selectedName = value;
+                });
+              },
+              decoration: const InputDecoration(labelText: 'Nombre'),
+            ),
+            TextField(
+              onChanged: (value) {
+                setState(() {
+                  selectedCollege = value;
+                });
+              },
+              decoration: const InputDecoration(labelText: 'Colegio'),
+            ),
+            DropdownButton<String>(
+              value: selectedSize,
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedSize = newValue;
+                });
+              },
+              items: <String>['S', 'M', 'L', 'XL'].map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              hint: const Text('Talla'),
+            ),
+            const Text('Rango de Cantidad'),
+            RangeSlider(
+              values: quantityRange,
+              min: 0,
+              max: 1000,
+              divisions: 100,
+              labels: RangeLabels(
+                quantityRange.start.toString(),
+                quantityRange.end.toString(),
+              ),
+              onChanged: (RangeValues newRange) {
+                setState(() {
+                  quantityRange = newRange;
+                });
+              },
+            ),
+            const Text('Rango de precio'),
+            RangeSlider(
+              values: priceRange,
+              min: 0,
+              max: 50000,
+              divisions: 100,
+              labels: RangeLabels(
+                priceRange.start.toString(),
+                priceRange.end.toString(),
+              ),
+              onChanged: (RangeValues newRange) {
+                setState(() {
+                  priceRange = newRange;
+                });
+              },
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Aquí se aplicaría la lógica para filtrar los productos
+                print('Filtros aplicados: $selectedName, $selectedCollege, $selectedSize, $quantityRange, ${priceRange.start}-${priceRange.end}');
+              },
+              child: const Text('Aplicar Filtros'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
