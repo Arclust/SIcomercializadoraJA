@@ -1,56 +1,81 @@
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:path_provider/path_provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'dart:ui' as ui;
+import 'package:dio/dio.dart';
 
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Generador de Código QR e Historial',
-//       theme: ThemeData(
-//         primarySwatch: Colors.blue,
-//       ),
-//       home: HomePage(),
-//     );
-//   }
-// }
+
 
 Future<void> CrearInventario() async{
   print("a");
 }
 
-Future<String> AgregarProducto(String tipo, String colegio, String talla, String cantidad, String precio) async {
+
+
+Future<List<dynamic>> AgregarProducto(String tipo, String colegio, String talla, String cantidad, String precio) async {
+  List<dynamic> fila = [];
   try {
-    await InsertarFilaCSV('Inventario.csv',['$tipo;$colegio;$talla;$cantidad;$precio']);
+    String qrImagePath = await generarQRProducto(tipo, colegio, talla, cantidad, precio);
+    print('QR generado en: $qrImagePath');
+    await InsertarFilaCSV('Inventario.csv',['$tipo;$colegio;$talla;$cantidad;$precio;$qrImagePath']);
+    fila = [tipo,colegio,talla,cantidad,precio,qrImagePath];
   } catch (e) {
     print('Error: $e');
   }
-  // String data = '$tipo-$colegio-$talla-$cantidad-$precio';
-  // final qrImage = QrImage( 
-  //   data: data,
-  //   version: QrVersions.auto,
-  //   size: 200.0,
-  // );
-  // final imagePath = 'QRs productos/qr_$tipo.png';
-
-  // final ui.Image image = await qrImage.toImage(200);
-  // final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-  // Im.Image img = Im.decodePng(byteData!.buffer.asUint8List());
-  // Im.Image imageToSave = Im.copyResize(img, width: 200);
-  // Im.encodePng(new File(imagePath), imageToSave);
-  return '';
+  return fila;
 }
 
-Future<String> lecturaCSV(String rutaArchivo) async {
+
+
+Future<String> generarQRProducto(String tipo, String colegio, String talla, String cantidad, String precio) async {
   try {
-    return rootBundle.loadString(rutaArchivo);
+    // Crear código QR
+    String data = '$tipo-$colegio-$talla-$cantidad-$precio';
+
+    final qrPainter = QrPainter(
+      data: data,
+      version: QrVersions.auto,
+      gapless: false,
+    );
+
+    // Obtener el directorio de documentos
+    final directory = await getApplicationDocumentsDirectory();
+
+    // Crear una carpeta llamada "QRs" si no existe
+    final qrDirectory = Directory('${directory.path}/QRs');
+    if (!await qrDirectory.exists()) {
+      await qrDirectory.create();
+    }
+
+    // Guardar la imagen QR en la carpeta "QRs"
+    final imagePath = '${qrDirectory.path}/qr_$tipo.png';
+
+    // Crear una imagen a partir del QrPainter
+    final pictureRecorder = ui.PictureRecorder();
+    final canvas = Canvas(pictureRecorder);
+    final size = Size(200, 200);
+    qrPainter.paint(canvas, size);
+
+    final img = await pictureRecorder.endRecording().toImage(size.width.toInt(), size.height.toInt());
+    final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+    await File(imagePath).writeAsBytes(byteData!.buffer.asUint8List());
+
+    return imagePath; // Devuelve la ruta de la imagen QR
   } catch (e) {
-    print('Error al cargar el archivo CSV: $e');
-    return ''; // O maneja el error de otra forma
+    print('Error al generar QR: $e');
+    return ''; // Devuelve una cadena vacía en caso de error
   }
 }
+
+
+
+
+
+
+
 
 Future<void> InsertarFilaCSV(String nombreArchivo, List<String> fila) async {
   try {
@@ -83,6 +108,7 @@ Future<void> InsertarFilaCSV(String nombreArchivo, List<String> fila) async {
 }
 
 Future<List<List<dynamic>>> FiltrarProductos(
+
     String? nombre,
     String? colegio,
     String? talla,
@@ -110,7 +136,7 @@ Future<List<List<dynamic>>> FiltrarProductos(
 
     // Dividir la cadena, ignorando los corchetes
     List<String> elemento = fila.substring(0, fila.length).split(';');
-    
+
     if (
       RegExp(nombre ?? '').hasMatch(elemento[0]) &&
         RegExp(colegio ?? '').hasMatch(elemento[1]) &&
@@ -122,9 +148,38 @@ Future<List<List<dynamic>>> FiltrarProductos(
     }
   }
 
-
   return ProductosFiltrados;
 }
+
+
+
+Future<void> GuardarArchivo(File archivo, BuildContext context) async {
+  try {
+    // Obtener la carpeta de descargas del dispositivo
+    final directory = await getExternalStorageDirectory();
+
+    // Crear un nuevo nombre de archivo (opcional)
+    // Puedes personalizar el nombre basado en el nombre original del archivo
+    final nuevoNombre = 'copia_de_${archivo.path.split('/').last}';
+
+    // Crear la ruta completa del nuevo archivo
+    final nuevaRuta = '${directory?.path}/$nuevoNombre';
+
+    // Copiar el archivo a la nueva ubicación
+    await archivo.copy(nuevaRuta);
+
+    // Informar al usuario (puedes usar un snackbar o un diálogo)
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Archivo guardado exitosamente')),
+    );
+  } catch (e) {
+    // Mostrar un mensaje de error al usuario
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error al guardar el archivo: $e')),
+    );
+  }
+}
+
 
 
 
@@ -164,7 +219,7 @@ Future<List<List<dynamic>>> FiltrarProductos(
 //   final datos = leerCsv(rutaArchivo);
 //   if (datos.isNotEmpty) {
 //     datos.removeAt(0);
-    
+
 //     final csv = const ListToCsvConverter().convert(datos);
 //     File(rutaArchivo).writeAsStringSync(csv);
 //     print('Registro más antiguo eliminado.');
