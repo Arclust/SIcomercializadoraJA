@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:csv/csv.dart';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
@@ -79,6 +80,50 @@ Future<void> InsertarFilaCSV(String nombreArchivo, List<String> fila) async {
   } catch (e) {
     print('Error al insertar fila en el archivo CSV: $e');
   }
+}
+
+Future<List<List<dynamic>>> FiltrarProductos(
+    String? nombre,
+    String? colegio,
+    String? talla,
+    RangeValues rangoCantidad,
+    RangeValues rangoPrecio) async {
+
+  final directory = await getApplicationDocumentsDirectory();
+  final rutaArchivo = '${directory.path}/Inventario.csv';
+  String csvContent = "";
+
+  try {
+    csvContent = await File(rutaArchivo).readAsString();
+  } catch (e) {
+    print("Error al leer el archivo CSV: $e");
+    return [];
+  }
+
+  final List<List<dynamic>> filas = const CsvToListConverter().convert(csvContent);
+
+  final List<List<dynamic>> ProductosFiltrados = [];;
+
+  for (int i = 0; i < filas.length; i++) {
+    // Acceder al elemento i de la lista filas
+    String fila = filas[i][0] as String;
+
+    // Dividir la cadena, ignorando los corchetes
+    List<String> elemento = fila.substring(0, fila.length).split(';');
+    
+    if (
+      RegExp(nombre ?? '').hasMatch(elemento[0]) &&
+        RegExp(colegio ?? '').hasMatch(elemento[1]) &&
+        RegExp(talla ?? '').hasMatch(elemento[2]) &&
+        (int.parse(elemento[3]) >= rangoCantidad.start && int.parse(elemento[3]) <= rangoCantidad.end) &&
+        (int.parse(elemento[4]) >= rangoPrecio.start && int.parse(elemento[4]) <= rangoPrecio.end)
+    ) {
+      ProductosFiltrados.add(filas[i]);
+    }
+  }
+
+
+  return ProductosFiltrados;
 }
 
 

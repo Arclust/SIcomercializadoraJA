@@ -259,6 +259,7 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+  List<Widget> additionalButtons = [];
   String? selectedName;
   String? selectedCollege;
   String? selectedSize;
@@ -298,7 +299,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   selectedSize = newValue;
                 });
               },
-              items: <String>['S', 'M', 'L', 'XL'].map<DropdownMenuItem<String>>((String value) {
+              items: <String>['','S', 'M', 'L', 'XL'].map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(value),
@@ -339,11 +340,41 @@ class _SearchScreenState extends State<SearchScreen> {
               },
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 // Aquí se aplicaría la lógica para filtrar los productos
-                print('Filtros aplicados: $selectedName, $selectedCollege, $selectedSize, $quantityRange, ${priceRange.start}-${priceRange.end}');
+                final filtrados = await funcs.FiltrarProductos(selectedName, selectedCollege, selectedSize, quantityRange, priceRange);
+                print(filtrados);
+                setState(() {
+                  additionalButtons = [];
+                  for (int i = 0; i < filtrados.length; i++){
+                    String filtrado = filtrados[i][0] as String;
+
+                    // Dividir la cadena, ignorando los corchetes
+                    List<String> elemento = filtrado.substring(0, filtrado.length).split(';');
+                    additionalButtons.add(
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const ProductDetailsScreen(nombre: "a",colegio: "a",talla: "a",cantidad: 10,precio: 1000,)),
+                          );
+                        },
+                        child: Text(elemento[0]),
+                      ),
+                    );
+                  }
+
+                });
               },
               child: const Text('Aplicar Filtros'),
+            ),
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  // ... other elements
+                  ...additionalButtons,
+                ],
+              ),
             ),
           ],
         ),
