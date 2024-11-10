@@ -76,6 +76,10 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ElevatedButton(
               onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ReportScreen()),
+                );
               },
               child: const Text('Generar reporte'),
             ),
@@ -380,6 +384,74 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+
+//PANTALLA CREACION DE REPORTES
+
+
+class ReportScreen extends StatelessWidget {
+  const ReportScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFB3E5FC), // Fondo similar al de la imagen
+      body: Center(
+        child: Container(
+          width: 300,
+          height: 500,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: Text(
+                  'Reporte creado',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black54,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20), // Espacio para el contenido vacío
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: ElevatedButton(
+                  onPressed: () {
+                    // GuardarArchivo();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF00B0FF), // Color del botón
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  ),
+                  child: const Text(
+                    'Descargar',
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
