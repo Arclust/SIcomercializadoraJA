@@ -28,6 +28,9 @@ Future<List<dynamic>> AgregarProducto(String tipo, String colegio, String talla,
   return fila;
 }
 
+// Future<void> ModificarProducto(String tipo,String colegio,String talla,int nuevaCantidad,double nuevoPrecio,) async{
+//     final directory = await getApplicationDocumentsDirectory()
+// }
 
 
 Future<String> generarQRProducto(String tipo, String colegio, String talla, String cantidad, String precio) async {
