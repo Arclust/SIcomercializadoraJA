@@ -1,12 +1,33 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'funcs.dart' as funcs;
 
 void main() {
-  //funcs.CrearInventario();
-  runApp(const MyApp());
+  runApp(MyApp());
 }
+
+// class MyApp extends StatefulWidget {
+//   @override
+//   _MyAppState createState() => _MyAppState();
+// }
+//
+// class _MyAppState extends State<MyApp> {
+//   bool _usuarioExiste = false;
+//
+//   @override
+//   Future<void> initState() async{
+//     _usuarioExiste = await funcs.InicioAplicacion();
+//     print(_usuarioExiste);
+//   }
+//
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return _usuarioExiste
+//         ? MyHomePage(title: 'Camiloco')
+//         : MyHomePage(title: 'Camiloco');
+//   }
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -20,18 +41,226 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 41, 125, 139)),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'SI - uniformes'),
+      home: const MyHomePage(title: 'Johanna'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
 
-  final String title;
+//PANTALLA DE REGISTRO USUARIO
+
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({Key? key}) : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final TextEditingController _userController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blue.shade200, Colors.blue.shade800],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Registro de usuario',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: _userController, // Assign the controller
+                      decoration: InputDecoration(
+                        labelText: 'Usuario',
+                        hintText: 'Ingrese su nombre de usuario',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    TextField(
+                      controller: _passwordController, // Assign the controller
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Contraseña',
+                        hintText: 'Ingrese su contraseña',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    TextField(
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Confirmar contraseña',
+                        hintText: 'Ingrese su contraseña',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await funcs.RegistrarUsuario(_userController.text, _passwordController.text);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MyHomePage(title: _userController.text)),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 30.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      child: const Text(
+                        'Registrar usuario',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+//PANTALLA INICIO DE SESION
+
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({Key? key}) : super(key: key);
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _userController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Iniciar Sesión'),
+      ),
+      body: Container(
+        color: Colors.blue.shade200, // Fondo azul shade 200
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            elevation: 4.0,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: _passwordController, // Assign the controller
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Usuario',
+                      hintText: 'Ingrese su nombre de usuario',
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+                  TextField(
+                    controller: _passwordController, // Assign the controller
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Contraseña',
+                      hintText: 'Ingrese su contraseña',
+                    ),
+                  ),
+                  SizedBox(height: 20.0),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await funcs.InicioSesion(_userController as String, _passwordController as String);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MyHomePage(title: _userController as String,)),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue, // Color de fondo del botón
+                      padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
+                    ),
+                    child: Text('Iniciar Sesión'),
+                  ),
+                  SizedBox(height: 16.0),
+                  GestureDetector(
+                    onTap: () {
+                      // Acción de "Olvidaste la contraseña"
+                    },
+                    child: const Text(
+                      '¿Olvidaste la contraseña?',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+//PANTALLA PRINCIPAL
+
+
+class MyHomePage extends StatefulWidget {
+  final String title;
+
+  const MyHomePage({
+    super.key,
+    required this.title,
+  });
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -40,7 +269,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: Text('¡Hola ${widget.title}!¿Que te gustaria hacer?'),
       ),
       body: Center(
         child: Column(
@@ -245,6 +474,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 await funcs.GuardarArchivo(imageFile, context);
               },
               child: const Text('Descargar QR'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await funcs.EliminarProducto(widget.nombre, widget.colegio, widget.talla);
+                Navigator.pop(context);
+              },
+              child: const Text('Eliminar producto'),
             ),
           ],
         ),
@@ -673,6 +909,10 @@ class _ModifyProductScreenState extends State<ModifyProductScreen> {
     );
   }
 }
+
+
+//PANTALLA CANTIDAD DESEADA ACTUALIZAR
+
 
 class QuantityModifyProductScreen extends StatefulWidget {
   final String nombre;

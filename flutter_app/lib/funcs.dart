@@ -249,5 +249,100 @@ Future<void> ActualizarProducto(
   print("Producto actualizado correctamente.");
 }
 
+Future<void> EliminarProducto(String nombre,String colegio,String talla,) async {
+  final directory = await getApplicationDocumentsDirectory();
+  final rutaArchivo = '${directory.path}/Inventario.csv';
+  String csvContent = "";
+
+  try {
+  csvContent = await File(rutaArchivo).readAsString();
+  } catch (e) {
+     print("Error al leer el archivo CSV: $e");
+     return;
+  }
+  final List<List<dynamic>> filas = const CsvToListConverter().convert(csvContent);
+
+  for (int i = 0; i < filas.length; i++) {
+    String fila = filas[i][0] as String;
+
+    List<String> elemento = fila.substring(0, fila.length).split(';');
+
+    if (RegExp(nombre ?? '').hasMatch(elemento[0]) &&
+        RegExp(colegio ?? '').hasMatch(elemento[1]) &&
+        RegExp(talla ?? '').hasMatch(elemento[2])) {
+      filas.removeAt(i);
+
+      break;
+    }
+  }
+  final nuevoCsvContent = const ListToCsvConverter().convert(filas);
+  await File(rutaArchivo).writeAsString(nuevoCsvContent);
+
+  print("Producto eliminado correctamente.");
+}
+
+Future<bool> InicioSesion(String nombreUsuario, String contrasena) async {
+  final directory = await getApplicationDocumentsDirectory();
+  final rutaArchivo = '${directory.path}/credenciales.csv';
+  String csvContent = "";
+
+  try {
+    csvContent = await File(rutaArchivo).readAsString();
+  } catch (e) {
+    print("Error al leer el archivo CSV: $e");
+    return false;
+  }
+
+  final List<List<dynamic>> filas = const CsvToListConverter().convert(csvContent);
+
+  for (int i = 0; i < filas.length; i++) {
+    String fila = filas[i][0] as String;
+    List<String> elemento = fila.substring(0, fila.length).split(';');
+
+    if (elemento[0] == nombreUsuario && elemento[1] == contrasena) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+Future<bool> InicioAplicacion() async {
+  final directory = await getApplicationDocumentsDirectory();
+  final rutaArchivo = '${directory.path}/credenciales.csv';
+
+  if (await File(rutaArchivo).exists()) {
+    try {
+
+      String csvContent = await File(rutaArchivo).readAsString();
+
+      if (csvContent.isNotEmpty) {
+        return true;
+      }
+    } catch (e) {
+      print("Error al leer el archivo CSV: $e");
+    }
+  }
+
+  return false;
+}
 
 
+Future<void> RegistrarUsuario(String nombreUsuario,String contrasena) async {
+  final directory = await getApplicationDocumentsDirectory();
+  final rutaArchivo = '${directory.path}/credenciales.csv';
+
+  final archivo = File(rutaArchivo);
+  if (!await archivo.exists()) {
+    await archivo.create();
+  }
+
+  try {
+    final contenido = '$nombreUsuario;$contrasena\n';
+    await archivo.writeAsString(contenido, mode: FileMode.append);
+    print('Usuario registrado correctamente.');
+  } catch (e) {
+    print('Error al registrar el usuario: $e');
+  }
+
+}
