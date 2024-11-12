@@ -183,192 +183,71 @@ Future<void> GuardarArchivo(File archivo, BuildContext context) async {
   }
 }
 
+Future<void> ActualizarProducto(
+  String nombre,
+  String colegio,
+  String talla,
+  String cantidad,
+  String precio,
+  String accion,
+  int cantidadAccion,
+) async {
+
+  final directory = await getApplicationDocumentsDirectory();
+  final rutaArchivo = '${directory.path}/Inventario.csv';
+  String csvContent = "";
+
+  try {
+    csvContent = await File(rutaArchivo).readAsString();
+  } catch (e) {
+    print("Error al leer el archivo CSV: $e");
+    return;
+  }
+
+  final List<List<dynamic>> filas = const CsvToListConverter().convert(csvContent);
+
+  int cantidadActual = int.parse(cantidad);
+
+  for (int i = 0; i < filas.length; i++) {
+    // Acceder al elemento i de la lista filas
+    String fila = filas[i][0] as String;
+
+    // Dividir la cadena, ignorando los corchetes
+    List<String> elemento = fila.substring(0, fila.length).split(';');
+
+    if (
+      RegExp(nombre ?? '').hasMatch(elemento[0]) &&
+      RegExp(colegio ?? '').hasMatch(elemento[1]) &&
+      RegExp(talla ?? '').hasMatch(elemento[2])
+    ) {
+
+      switch (accion) {
+        case "aumentar":
+          cantidadActual+= cantidadAccion;
+          break;
+        case "disminuir":
+          cantidadActual -= cantidadAccion;
+//           if (cantidadActual < 0) {
+//             cantidadActual = 0;
+//           }
+          break;
+        case "cambiarPrecio":
+          elemento[4] = cantidadAccion.toString();
+          break;
+        default:
+          print("Acción inválida.");
+          return;
+      }
+      elemento[3] = cantidadActual.toString();
+      filas[i][0] = elemento.join(';');
+
+      final nuevoCsvContent = const ListToCsvConverter().convert(filas);
+      await File(rutaArchivo).writeAsString(nuevoCsvContent);
+    }
+  }
+
+  print("Producto actualizado correctamente.");
+}
 
 
 
-// Future<void> InsertarFilaCSV(String nombreArchivo, List<String> fila) async {
-//   try {
-//     // Obtiene el directorio de documentos de la aplicación
-//     final directory = await getApplicationDocumentsDirectory();
-//     final rutaArchivo = '${directory.path}/$nombreArchivo';
-
-//     // Si el archivo no existe en almacenamiento local, cópialo de assets
-//     if (!File(rutaArchivo).existsSync()) {
-//       final String contenidoInicial = await rootBundle.loadString(nombreArchivo);
-//       await File(rutaArchivo).writeAsString(contenidoInicial);
-//     }
-
-//     // Lee el contenido del archivo CSV desde el almacenamiento local
-//     final String csvContent = await File(rutaArchivo).readAsString();
-//     // Convierte el contenido del archivo CSV a una lista de filas
-//     final List<List<dynamic>> filas = CsvToListConverter().convert(csvContent);
-//     // Agrega la nueva fila a la lista de filas
-//     filas.add(fila);
-//     // Convierte la lista de filas de nuevo a un string CSV
-//     final String newCsvContent = ListToCsvConverter().convert(filas);
-//     // Escribe el nuevo contenido CSV en el archivo local
-//     await File(rutaArchivo).writeAsString(newCsvContent);
-//   } catch (e) {
-//     print('Error al insertar fila en el archivo CSV: $e');
-//   }
-// }
-
-// int contarRegistrosHistorial(String rutaArchivo) {
-//   final datos = leerCsv(rutaArchivo);
-//   return datos.length;
-// }
-
-// void eliminarRegistroAntiguo(String rutaArchivo) {
-//   final datos = leerCsv(rutaArchivo);
-//   if (datos.isNotEmpty) {
-//     datos.removeAt(0);
-
-//     final csv = const ListToCsvConverter().convert(datos);
-//     File(rutaArchivo).writeAsStringSync(csv);
-//     print('Registro más antiguo eliminado.');
-//   } else {
-//     print('No hay registros para eliminar.');
-//   }
-// }
-
-// class HomePage extends StatelessWidget {
-//   final HistorialManager historialManager = HistorialManager();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text("Inicio"),
-//       ),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             ElevatedButton(
-//               onPressed: () async {
-//                 // Ejemplo de agregar un registro al historial
-//                 await historialManager.agregarHistorial(
-//                     "Agregar", "ProductoX", 5, "L");
-//                 print("Registro agregado al historial.");
-//               },
-//               child: Text("Agregar al Historial"),
-//             ),
-//             ElevatedButton(
-//               onPressed: () async {
-//                 // Ejemplo de contar registros
-//                 int total = await historialManager.contarRegistrosHistorial();
-//                 print("Total de registros: $total");
-//               },
-//               child: Text("Contar Registros"),
-//             ),
-//             ElevatedButton(
-//               onPressed: () {
-//                 // // Navegar al generador de QR
-//                 // Navigator.push(
-//                 //   context,
-//                 //   MaterialPageRoute(
-//                 //     builder: (context) => QRCodeGenerator(data: "Datos de Ejemplo"),
-//                 //   ),
-//                 // );
-//               },
-//               child: Text("Generar Código QR"),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// class HistorialManager {
-//   // Obtiene el directorio de documentos del dispositivo
-//   Future<String> _getFilePath(String fileName) async {
-//     final directory = await getApplicationDocumentsDirectory();
-//     return '${directory.path}/$fileName';
-//   }
-
-//   // Cargar el historial existente o crear uno nuevo si no existe
-//   Future<List<List<dynamic>>> cargarHistorial() async {
-//     final filePath = await _getFilePath('historial.csv');
-//     final file = File(filePath);
-
-//     if (await file.exists()) {
-//       final content = await file.readAsString();
-//       return CsvToListConverter().convert(content);
-//     } else {
-//       // Crear un archivo nuevo con encabezados
-//       await file.writeAsString(const ListToCsvConverter().convert([
-//         ["tipo_accion", "tipo_producto", "cantidad_h", "talla_h", "hora"]
-//       ]));
-//       return [];
-//     }
-//   }
-
-//   // Contar registros en el historial
-//   Future<int> contarRegistrosHistorial() async {
-//     final historial = await cargarHistorial();
-//     return historial.length - 1; // Resta 1 para no contar la fila de encabezado
-//   }
-
-//   // Eliminar el registro más antiguo (segunda fila del historial)
-//   Future<void> eliminarRegistroAntiguo() async {
-//     final filePath = await _getFilePath('historial.csv');
-//     final file = File(filePath);
-
-//     if (await file.exists()) {
-//       final historial = await cargarHistorial();
-//       if (historial.length > 1) {
-//         // Eliminar el primer registro de datos
-//         historial.removeAt(1);
-//         final updatedContent = const ListToCsvConverter().convert(historial);
-//         await file.writeAsString(updatedContent);
-//         print("Registro más antiguo eliminado.");
-//       } else {
-//         print("No hay registros para eliminar.");
-//       }
-//     }
-//   }
-
-//   // Agregar un nuevo registro al historial
-//   Future<void> agregarHistorial(
-//       String accion, String producto, int cantidad, String talla) async {
-//     final filePath = await _getFilePath('historial.csv');
-//     final file = File(filePath);
-//     final DateTime now = DateTime.now();
-//     final nuevoRegistro = [
-//       accion,
-//       producto,
-//       cantidad,
-//       talla,
-//       now.toIso8601String()
-//     ];
-
-//     final historial = await cargarHistorial();
-//     historial.add(nuevoRegistro);
-//     final updatedContent = const ListToCsvConverter().convert(historial);
-//     await file.writeAsString(updatedContent);
-//   }
-// }
-
-// Widget para generar el código QR
-// class QRCodeGenerator extends StatelessWidget {
-//   final String data;
-
-//   QRCodeGenerator({required this.data});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text("Generador de Código QR"),
-//       ),
-//       body: Center(
-//         // child: QrImage(
-//         //   data: data,
-//         //   version: QrVersions.auto,
-//         //   size: 200.0,
-//         // ),
-//       ),
-//     );
-//   }
-// }
