@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'funcs.dart' as funcs;
+import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 
 void main() {
   runApp(MyApp());
@@ -505,8 +506,8 @@ class _SearchScreenState extends State<SearchScreen> {
   String? selectedName;
   String? selectedCollege;
   String? selectedSize;
-  RangeValues quantityRange = const RangeValues(0, 500);
-  RangeValues priceRange = const RangeValues(0, 50000);
+  RangeValues quantityRange = const RangeValues(0, 200);
+  RangeValues priceRange = const RangeValues(0, 30000);
 
   @override
   Widget build(BuildContext context) {
@@ -553,7 +554,7 @@ class _SearchScreenState extends State<SearchScreen> {
             RangeSlider(
               values: quantityRange,
               min: 0,
-              max: 500,
+              max: 200,
               divisions: 100,
               labels: RangeLabels(
                 quantityRange.start.toString(),
@@ -569,7 +570,7 @@ class _SearchScreenState extends State<SearchScreen> {
             RangeSlider(
               values: priceRange,
               min: 0,
-              max: 50000,
+              max: 30000,
               divisions: 100,
               labels: RangeLabels(
                 priceRange.start.toString(),
@@ -697,70 +698,94 @@ class ReportScreen extends StatelessWidget {
 // PANTALLA DE SOLICITUD DE QR
 
 
-class ScanQRScreen extends StatelessWidget {
+class ScanQRScreen extends StatefulWidget {
   const ScanQRScreen({super.key});
+
+  @override
+  State<ScanQRScreen> createState() => _ScanQRScreenState();
+}
+
+class _ScanQRScreenState extends State<ScanQRScreen> {
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  var qrResult = 'No se ha escaneado ningún código QR';
+  QRViewController? controller;
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    if (Platform.isAndroid) {
+      controller?.pauseCamera();
+    }
+    controller?.resumeCamera();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFB3E5FC), // Fondo similar al de la imagen
-      body: Center(
-        child: Container(
-          width: 300,
-          height: 500,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
+      backgroundColor: const Color(0xFFB3E5FC),
+      body: Column(
+        children: [
+          Expanded(
+            flex: 4,
+            child: QRView(
+              key: qrKey,
+              onQRViewCreated: _onQRViewCreated,
+            ),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Text(
-                  'Escanea el QR de un producto',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black54,
-                  ),
+          Expanded(
+            flex: 1,
+            child: Center(
+              child: Text(
+                qrResult,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
                 ),
               ),
-              const SizedBox(height: 20), // Espacio para el contenido vacío
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const RequestProductScreen()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF00B0FF), // Color del botón
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  ),
-                  child: const Text(
-                    'Ingresa de forma manual',
-                    style: TextStyle(fontSize: 12, color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
+  }
+
+  void _onQRViewCreated(QRViewController controller) {
+    this.controller = controller;
+    controller.scannedDataStream.listen((scanData) {
+      if (scanData.code != null) {
+        setState(() {
+          qrResult = scanData.code!;
+          final elemento = qrResult.split('-');
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ModifyProductScreen(nombre: elemento[0], colegio: elemento[1], talla: elemento[2], cantidad: elemento[3], precio: elemento[4])),
+          );// Call the dialog function
+        });
+      }
+    });
+  }
+
+  void _showDataDialog(BuildContext context, String data) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Datos del código QR'),
+        content: Text(data),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
   }
 }
 
