@@ -1,0 +1,10 @@
+name: historial_inventario
+description: Proyecto para manejar historial de inventario en Dart
+version: 1.0.0
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  csv: ^5.0.0
+  intl: ^0.17.0
