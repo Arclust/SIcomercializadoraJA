@@ -312,6 +312,16 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text('Generar reporte'),
             ),
+            ElevatedButton(
+              onPressed: () {
+                //funcs.
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MovementsScreen()),
+                );
+              },
+              child: const Text('Historial de movimientos'),
+            ),
           ],
         ),
       ),
@@ -319,9 +329,76 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+// PANTALLA HISTORIAL DE MOVIMIENTOS
 
+class MovementsScreen extends StatelessWidget {
+  // Datos de ejemplo para los movimientos
+  final List<Map<String, dynamic>> movimientos = [
+    {"accion": "add", "descripcion": "Producto A agregado", "fecha": "2023-11-14"},
+    {"accion": "update", "descripcion": "Producto B actualizado", "fecha": "2023-11-13"},
+    {"accion": "delete", "descripcion": "Producto C eliminado", "fecha": "2023-11-12"},
+    {"accion": "add", "descripcion": "Producto D agregado", "fecha": "2023-11-11"},
+  ];
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Historial de Movimientos"),
+      ),
+      body: ListView.builder(
+        itemCount: movimientos.length,
+        itemBuilder: (context, index) {
+          final movimiento = movimientos[index];
+          final color = obtenerColor(movimiento["accion"]);
 
+          return Card(
+            color: color.withOpacity(0.3),
+            child: ListTile(
+              leading: Icon(
+                obtenerIcono(movimiento["accion"]),
+                color: color,
+              ),
+              title: Text(
+                movimiento["descripcion"],
+                style: TextStyle(color: color),
+              ),
+              subtitle: Text(movimiento["fecha"]),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // Retorna el color dependiendo de la acción
+  Color obtenerColor(String accion) {
+    switch (accion) {
+      case "add":
+        return Color.fromRGBO(139, 255, 110, 1);
+      case "update":
+        return Colors.blue;
+      case "delete":
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  // Retorna el icono dependiendo de la acción
+  IconData obtenerIcono(String accion) {
+    switch (accion) {
+      case "add":
+        return Icons.add;
+      case "update":
+        return Icons.update;
+      case "delete":
+        return Icons.delete;
+      default:
+        return Icons.info;
+    }
+  }
+}
 
 // PANTALLA AGREGAR PRODUCTOS
 
@@ -422,7 +499,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 }
-
 
 
 //PANTALLA DE DETALLES PRODUCTO
