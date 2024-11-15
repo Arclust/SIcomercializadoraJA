@@ -249,10 +249,110 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 
-//PANTALLA PRINCIPAL
+
+
+
 
 
 class MyHomePage extends StatefulWidget {
+  final String title;
+
+  const MyHomePage({
+    super.key,
+    required this.title,
+  });
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFF3D9CA8), // Color similar al de la barra superior en la imagen
+        title: const Text('¡Hola! ¿Que te deseas hacer?'),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFB3E5FC),
+              Color(0xFF81D4FA),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildMenuButton("Agregar producto", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AddProductScreen()),
+                );
+              }),
+              _buildMenuButton("Actualizar producto", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ScanQRScreen()),
+                );
+              }),
+              _buildMenuButton("Buscador de productos", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SearchScreen()),
+                );
+              }),
+              _buildMenuButton("Generar reporte", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ReportScreen()),
+                );
+              }),
+              _buildMenuButton("Historial de movimientos", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MovementsScreen()),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuButton(String text, VoidCallback onPressed) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 30.0),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0), // Ajuste de padding
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          elevation: 5,
+        ),
+        onPressed: onPressed,
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 16),
+        ),
+      ),
+    );
+  }
+}
+
+//PANTALLA PRINCIPAL
+
+
+/*class MyHomePage extends StatefulWidget {
   final String title;
 
   const MyHomePage({
@@ -327,7 +427,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-}
+}*/
 
 // PANTALLA HISTORIAL DE MOVIMIENTOS
 
