@@ -10,3 +10,4 @@ dependencies:
   csv: ^5.0.0
   path_provider: ^2.0.9
   qr_flutter: ^4.0.0
+  intl: ^0.18.0
