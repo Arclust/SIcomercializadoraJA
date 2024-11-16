@@ -431,13 +431,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
 // PANTALLA HISTORIAL DE MOVIMIENTOS
 
-class MovementsScreen extends StatelessWidget {
+class MovementsScreen extends StatefulWidget {
+  const MovementsScreen({super.key});
+
+  @override
+  _MovementsScreenState createState() => _MovementsScreenState();
+}
+
+class _MovementsScreenState extends State<MovementsScreen> {
   // Datos de ejemplo para los movimientos
   final List<Map<String, dynamic>> movimientos = [
-    {"accion": "add", "descripcion": "Producto A agregado", "fecha": "2023-11-14"},
-    {"accion": "update", "descripcion": "Producto B actualizado", "fecha": "2023-11-13"},
-    {"accion": "delete", "descripcion": "Producto C eliminado", "fecha": "2023-11-12"},
-    {"accion": "add", "descripcion": "Producto D agregado", "fecha": "2023-11-11"},
+    {"accion": "add", "producto": "Polera negra", "cantidad": "9", "talla": "L", "fecha": "2023-11-14"},
   ];
 
   @override
@@ -460,10 +464,12 @@ class MovementsScreen extends StatelessWidget {
                 color: color,
               ),
               title: Text(
-                movimiento["descripcion"],
+                movimiento["producto"],
                 style: TextStyle(color: color),
               ),
-              subtitle: Text(movimiento["fecha"]),
+              subtitle: Text(
+              'Cantidad: ${movimiento['cantidad']}, Talla: ${movimiento['talla']}, Fecha: ${movimiento['fecha']}',
+              ),
             ),
           );
         },
