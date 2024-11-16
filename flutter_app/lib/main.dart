@@ -310,10 +310,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   MaterialPageRoute(builder: (context) => const ReportScreen()),
                 );
               }),
-              _buildMenuButton("Historial de movimientos", () {
+              _buildMenuButton("Historial de movimientos", () async {
+                var movements = await funcs.LeerHistorial();
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => MovementsScreen()),
+                  MaterialPageRoute(builder: (context) => MovementsScreen(movimientos: movements)),
                 );
               }),
             ],
@@ -429,17 +430,16 @@ class _MyHomePageState extends State<MyHomePage> {
 // PANTALLA HISTORIAL DE MOVIMIENTOS
 
 class MovementsScreen extends StatefulWidget {
-  const MovementsScreen({super.key});
+  final List<Map<String, dynamic>> movimientos;
+  const MovementsScreen({super.key,
+  required this.movimientos,
+  });
 
   @override
   _MovementsScreenState createState() => _MovementsScreenState();
 }
 
 class _MovementsScreenState extends State<MovementsScreen> {
-  // Datos de ejemplo para los movimientos
-  final List<Map<String, dynamic>> movimientos = [
-    {"accion": "add", "producto": "Polera negra", "cantidad": "9", "talla": "L", "fecha": "2023-11-14"},
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -448,9 +448,9 @@ class _MovementsScreenState extends State<MovementsScreen> {
         title: Text("Historial de Movimientos"),
       ),
       body: ListView.builder(
-        itemCount: movimientos.length,
+        itemCount: widget.movimientos.length,
         itemBuilder: (context, index) {
-          final movimiento = movimientos[index];
+          final movimiento = widget.movimientos[index];
           final color = obtenerColor(movimiento["accion"]);
 
           return Card(
@@ -477,11 +477,12 @@ class _MovementsScreenState extends State<MovementsScreen> {
   // Retorna el color dependiendo de la acción
   Color obtenerColor(String accion) {
     switch (accion) {
-      case "add":
+      case "Agregar":
         return Color.fromRGBO(139, 255, 110, 1);
-      case "update":
+      case "Disminuir":
+      case "Aumentar":
         return Colors.blue;
-      case "delete":
+      case "Eliminar":
         return Colors.red;
       default:
         return Colors.grey;
@@ -590,7 +591,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     List<dynamic> NuevoProducto = await funcs.AgregarProducto(_nameController.text,_schoolController.text,_sizeController.text,_unitsController.text,_priceController.text);
-                    await funcs.Agregar_historial("Agregar", _nameController.text, int.parse(_unitsController.text), _sizeController.text);
+                    await funcs.AgregarHistorial("Agregar", _nameController.text, int.parse(_unitsController.text), _sizeController.text);
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => ProductDetailsScreen(nombre: NuevoProducto[0],colegio: NuevoProducto[1],talla: NuevoProducto[2],cantidad: NuevoProducto[3],precio: NuevoProducto[4], direccionqr: NuevoProducto[5],)),

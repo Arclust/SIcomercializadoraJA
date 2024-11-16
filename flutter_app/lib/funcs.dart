@@ -10,9 +10,10 @@ import 'package:intl/intl.dart';
 List<Map<String, dynamic>> df_productos = [];
 List<Map<String, dynamic>> df_historial = [];
 
-Future<List<Map<String, dynamic>>> procesarCSV(String rutaCSV) async {
+Future<List<Map<String, dynamic>>> LeerHistorial() async {
   final List<Map<String, dynamic>> movimientos = [];
-  final File archivo = File(rutaCSV);
+  final directory = await getApplicationDocumentsDirectory();
+  final File archivo = File('${directory.path}/Historial.csv');
 
   if (await archivo.exists()) {
     // Leer el archivo CSV
@@ -33,7 +34,7 @@ Future<List<Map<String, dynamic>>> procesarCSV(String rutaCSV) async {
       });
     }
   } else {
-    print('El archivo no existe en la ruta proporcionada: $rutaCSV');
+    print('El archivo no existe en la ruta proporcionada');
   }
 
   return movimientos;
@@ -87,7 +88,7 @@ int contar_registros_historial() {
 // }
 
 // Agregar un nuevo registro al historial de forma asincrónica
-Future<void> Agregar_historial(String accion, String producto, int cantidad, String talla) async {
+Future<void> AgregarHistorial(String accion, String producto, int cantidad, String talla) async {
 
   var horaAccion = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
   List<String> ultima_modificacion = ['$accion;$producto;$cantidad;$talla;$horaAccion;'];
@@ -306,18 +307,16 @@ Future<void> ActualizarProducto(
       switch (accion) {
         case "aumentar":
           cantidadActual+= cantidadAccion;
-          await Agregar_historial("Aumentar", nombre, cantidadAccion, talla);
+          await AgregarHistorial("Aumentar", nombre, cantidadAccion, talla);
           break;
         case "disminuir":
           cantidadActual -= cantidadAccion;
-          await Agregar_historial("Aumentar", nombre, cantidadAccion, talla);
 //           if (cantidadActual < 0) {
 //             cantidadActual = 0;
 //           }
           break;
         case "cambiarPrecio":
           elemento[4] = cantidadAccion.toString();
-          await Agregar_historial("Cambiar precio", nombre, cantidadAccion, talla);
           break;
         default:
           print("Acción inválida.");
@@ -362,7 +361,6 @@ Future<void> EliminarProducto(String nombre,String colegio,String talla,) async 
   }
   final nuevoCsvContent = const ListToCsvConverter().convert(filas);
   await File(rutaArchivo).writeAsString(nuevoCsvContent);
-  await Agregar_historial("Eliminar", nombre, 0, talla);
   print("Producto eliminado correctamente.");
 }
 
