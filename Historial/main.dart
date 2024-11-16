@@ -111,9 +111,11 @@ Future<List<Map<String, dynamic>>> procesarCSV(String rutaCSV) async {
 
       // Crear un registro basado en las columnas (ajusta los índices si es necesario)
       movimientos.add({
-        'acción': columnas[0].trim(), // Ajusta según las columnas del CSV
-        'descripción': columnas[1].trim(),
-        'fecha': columnas[2].trim(),
+        'accion': columnas[0].trim(), // Ajusta según las columnas del CSV
+        'producto': columnas[1].trim(),
+        'cantidad': columnas[2].trim(),
+        'talla': columnas[3].trim(),
+        'fecha': columnas[4].trim(),
       });
     }
   } else {

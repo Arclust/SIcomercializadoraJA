@@ -10,6 +10,35 @@ import 'package:intl/intl.dart';
 List<Map<String, dynamic>> df_productos = [];
 List<Map<String, dynamic>> df_historial = [];
 
+Future<List<Map<String, dynamic>>> procesarCSV(String rutaCSV) async {
+  final List<Map<String, dynamic>> movimientos = [];
+  final File archivo = File(rutaCSV);
+
+  if (await archivo.exists()) {
+    // Leer el archivo CSV
+    final List<String> lineas = await archivo.readAsLines();
+
+    // Procesar cada línea del archivo (asumiendo que tiene encabezados)
+    for (int i = 1; i < lineas.length; i++) {
+      final String linea = lineas[i];
+      final List<String> columnas = linea.split(';');
+
+      // Crear un registro basado en las columnas (ajusta los índices si es necesario)
+      movimientos.add({
+        'accion': columnas[0].trim(), // Ajusta según las columnas del CSV
+        'producto': columnas[1].trim(),
+        'cantidad': columnas[2].trim(),
+        'talla': columnas[3].trim(),
+        'fecha': columnas[4].trim(),
+      });
+    }
+  } else {
+    print('El archivo no existe en la ruta proporcionada: $rutaCSV');
+  }
+
+  return movimientos;
+}
+
 // Función para cargar archivos CSV en una lista de mapas de manera asincrónica
 Future<List<Map<String, dynamic>>> cargarCSV(String filePath) async {
   final file = File(filePath);
