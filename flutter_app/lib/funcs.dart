@@ -102,18 +102,6 @@ Future<void> guardarCSV(String filePath, List<Map<String, dynamic>> data, {bool 
   }
 }
 
-void main() async {
-  // Cargar los datos iniciales de los archivos CSV
-  await cargarDatos();
-
-  // Ejemplos de uso
-  print("Total de registros en historial antes de agregar: ${contar_registros_historial()}");
-  await Agregar_historial("Agregar", "Producto X", 5, "L");
-  await Agregar_historial("Agregar", "Producto Y", 10, "M");
-  await Agregar_historial("Agregar", "Producto Z", 3, "S");
-  print("Total de registros en historial después de agregar: ${contar_registros_historial()}");
-}
-
 
 
 Future<void> CrearInventario() async{
@@ -129,6 +117,7 @@ Future<List<dynamic>> AgregarProducto(String tipo, String colegio, String talla,
     print('QR generado en: $qrImagePath');
     await InsertarFilaCSV('Inventario.csv',['$tipo;$colegio;$talla;$cantidad;$precio;$qrImagePath']);
     fila = [tipo,colegio,talla,cantidad,precio,qrImagePath];
+    await Agregar_historial("Agregar", tipo, int.parse(cantidad), talla);
   } catch (e) {
     print('Error: $e');
   }
@@ -331,15 +320,18 @@ Future<void> ActualizarProducto(
       switch (accion) {
         case "aumentar":
           cantidadActual+= cantidadAccion;
+          await Agregar_historial("Aumentar", nombre, cantidadAccion, talla);
           break;
         case "disminuir":
           cantidadActual -= cantidadAccion;
+          await Agregar_historial("Aumentar", nombre, cantidadAccion, talla);
 //           if (cantidadActual < 0) {
 //             cantidadActual = 0;
 //           }
           break;
         case "cambiarPrecio":
           elemento[4] = cantidadAccion.toString();
+          await Agregar_historial("Cambiar precio", nombre, cantidadAccion, talla);
           break;
         default:
           print("Acción inválida.");
@@ -384,7 +376,7 @@ Future<void> EliminarProducto(String nombre,String colegio,String talla,) async 
   }
   final nuevoCsvContent = const ListToCsvConverter().convert(filas);
   await File(rutaArchivo).writeAsString(nuevoCsvContent);
-
+  await Agregar_historial("Eliminar", nombre, 0, talla);
   print("Producto eliminado correctamente.");
 }
 

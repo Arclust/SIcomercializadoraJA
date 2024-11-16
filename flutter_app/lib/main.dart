@@ -4,7 +4,9 @@ import 'funcs.dart' as funcs;
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 
 void main() {
+  funcs.cargarDatos();
   runApp(MyApp());
+  
 }
 
 // class MyApp extends StatefulWidget {
