@@ -251,10 +251,105 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 
+class MyHomePage extends StatefulWidget {
+  final String title;
+
+  const MyHomePage({
+    super.key,
+    required this.title,
+  });
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFF3D9CA8), // Color similar al de la barra superior en la imagen
+        title: const Text('¡Hola! ¿Que te deseas hacer?'),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFB3E5FC),
+              Color(0xFF81D4FA),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildMenuButton("Agregar producto", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AddProductScreen()),
+                );
+              }),
+              _buildMenuButton("Actualizar producto", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ScanQRScreen()),
+                );
+              }),
+              _buildMenuButton("Buscador de productos", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SearchScreen()),
+                );
+              }),
+              _buildMenuButton("Generar reporte", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ReportScreen()),
+                );
+              }),
+              _buildMenuButton("Historial de movimientos", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MovementsScreen()),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuButton(String text, VoidCallback onPressed) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 30.0),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0), // Ajuste de padding
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          elevation: 5,
+        ),
+        onPressed: onPressed,
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 16),
+        ),
+      ),
+    );
+  }
+}
+
 //PANTALLA PRINCIPAL
 
 
-class MyHomePage extends StatefulWidget {
+/*class MyHomePage extends StatefulWidget {
   final String title;
 
   const MyHomePage({
@@ -314,13 +409,99 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text('Generar reporte'),
             ),
+            ElevatedButton(
+              onPressed: () {
+                //funcs.
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MovementsScreen()),
+                );
+              },
+              child: const Text('Historial de movimientos'),
+            ),
           ],
         ),
       ),
     );
   }
+}*/
+
+// PANTALLA HISTORIAL DE MOVIMIENTOS
+
+class MovementsScreen extends StatefulWidget {
+  const MovementsScreen({super.key});
+
+  @override
+  _MovementsScreenState createState() => _MovementsScreenState();
 }
 
+class _MovementsScreenState extends State<MovementsScreen> {
+  // Datos de ejemplo para los movimientos
+  final List<Map<String, dynamic>> movimientos = [
+    {"accion": "add", "producto": "Polera negra", "cantidad": "9", "talla": "L", "fecha": "2023-11-14"},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Historial de Movimientos"),
+      ),
+      body: ListView.builder(
+        itemCount: movimientos.length,
+        itemBuilder: (context, index) {
+          final movimiento = movimientos[index];
+          final color = obtenerColor(movimiento["accion"]);
+
+          return Card(
+            color: color.withOpacity(0.3),
+            child: ListTile(
+              leading: Icon(
+                obtenerIcono(movimiento["accion"]),
+                color: color,
+              ),
+              title: Text(
+                movimiento["producto"],
+                style: TextStyle(color: color),
+              ),
+              subtitle: Text(
+                'Cantidad: ${movimiento['cantidad']}, Talla: ${movimiento['talla']}, Fecha: ${movimiento['fecha']}',
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // Retorna el color dependiendo de la acción
+  Color obtenerColor(String accion) {
+    switch (accion) {
+      case "add":
+        return Color.fromRGBO(139, 255, 110, 1);
+      case "update":
+        return Colors.blue;
+      case "delete":
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  // Retorna el icono dependiendo de la acción
+  IconData obtenerIcono(String accion) {
+    switch (accion) {
+      case "add":
+        return Icons.add;
+      case "update":
+        return Icons.update;
+      case "delete":
+        return Icons.delete;
+      default:
+        return Icons.info;
+    }
+  }
+}
 
 
 
