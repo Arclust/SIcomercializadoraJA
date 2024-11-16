@@ -96,6 +96,32 @@ Future<void> guardarCSV(String filePath, List<Map<String, dynamic>> data, {bool 
   }
 }
 
+Future<List<Map<String, dynamic>>> procesarCSV(String rutaCSV) async {
+  final List<Map<String, dynamic>> movimientos = [];
+  final File archivo = File(rutaCSV);
+
+  if (await archivo.exists()) {
+    // Leer el archivo CSV
+    final List<String> lineas = await archivo.readAsLines();
+
+    // Procesar cada línea del archivo (asumiendo que tiene encabezados)
+    for (int i = 1; i < lineas.length; i++) {
+      final String linea = lineas[i];
+      final List<String> columnas = linea.split(';');
+
+      // Crear un registro basado en las columnas (ajusta los índices si es necesario)
+      movimientos.add({
+        'acción': columnas[0].trim(), // Ajusta según las columnas del CSV
+        'descripción': columnas[1].trim(),
+        'fecha': columnas[2].trim(),
+      });
+    }
+  } else {
+    print('El archivo no existe en la ruta proporcionada: $rutaCSV');
+  }
+
+  return movimientos;
+}
 void main() async {
   // Cargar los datos iniciales de los archivos CSV
   await cargarDatos();
@@ -106,4 +132,11 @@ void main() async {
   await Agregar_historial("Agregar", "Producto Y", 10, "M");
   await Agregar_historial("Agregar", "Producto Z", 3, "S");
   print("Total de registros en historial después de agregar: ${contar_registros_historial()}");
+  final String rutaCSV = 'historial.csv'; // Ruta al archivo CSV
+  final List<Map<String, dynamic>> datos = await procesarCSV(rutaCSV);
+
+  // Imprimir los datos procesados
+  for (var movimiento in datos) {
+    print(movimiento);
+  }
 }
