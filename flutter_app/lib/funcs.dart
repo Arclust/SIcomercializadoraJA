@@ -5,8 +5,6 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:ui' as ui;
-import 'package:dio/dio.dart';
-import 'dart:convert';
 import 'package:intl/intl.dart';
 
 List<Map<String, dynamic>> df_productos = [];
@@ -40,7 +38,7 @@ Future<List<Map<String, dynamic>>> cargarCSV(String filePath) async {
 // Cargar el archivo de productos e historial (si existe) de forma asincrónica
 Future<void> cargarDatos() async {
   df_productos = await cargarCSV('InventarioPruebas.csv');
-  df_historial = await cargarCSV('historial.csv');
+  df_historial = await cargarCSV('Historial.csv');
 }
 
 // Contar registros en el historial
@@ -49,65 +47,28 @@ int contar_registros_historial() {
 }
 
 // Eliminar el registro más antiguo de forma asincrónica
-Future<void> EliminarRegistroAntiguo() async {
-  if (df_historial.isNotEmpty) {
-    df_historial.removeAt(0);
-    await guardarCSV('historial.csv', df_historial, overwrite: true);
-    print("Registro más antiguo eliminado.");
-  } else {
-    print("No hay registros para eliminar.");
-  }
-}
+// Future<void> EliminarRegistroAntiguo() async {
+//   if (df_historial.isNotEmpty) {
+//     df_historial.removeAt(0);
+//     await guardarCSV('Historial.csv', df_historial, overwrite: true);
+//     print("Registro más antiguo eliminado.");
+//   } else {
+//     print("No hay registros para eliminar.");
+//   }
+// }
 
 // Agregar un nuevo registro al historial de forma asincrónica
 Future<void> Agregar_historial(String accion, String producto, int cantidad, String talla) async {
-  Map<String, dynamic> ultima_modificacion = {
-    "tipo_accion": accion,
-    "tipo_producto": producto,
-    "cantidad_h": cantidad,
-    "talla_h": talla,
-    "hora": DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())
-  };
+
+  var horaAccion = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+  List<String> ultima_modificacion = ['$accion;$producto;$cantidad;$talla;$horaAccion;'];
 
   // Guardar el nuevo registro al archivo
-  await guardarCSV('historial.csv', [ultima_modificacion], append: true);
-
-  // Recargar df_historial para reflejar el nuevo estado del archivo
-  df_historial = await cargarCSV('historial.csv');
+  await InsertarFilaCSV('Historial.csv', ultima_modificacion);
 }
+
 
 // Función para guardar una lista de mapas como CSV de forma asincrónica
-Future<void> guardarCSV(String filePath, List<Map<String, dynamic>> data, {bool append = false, bool overwrite = false}) async {
-  if (data.isEmpty) return;
-
-  List<List<dynamic>> rows = [];
-
-  if (!append || overwrite) {
-    // Agregar encabezados si no estamos agregando al archivo existente
-    rows.add(data[0].keys.toList());
-  }
-
-  for (var registro in data) {
-    rows.add(registro.values.toList());
-  }
-
-  String csvData = const ListToCsvConverter(fieldDelimiter: ';').convert(rows);
-
-  if (append && !overwrite) {
-    // Agregar al final del archivo
-    await File(filePath).writeAsString(csvData + '\n', mode: FileMode.append, encoding: utf8);
-  } else {
-    // Sobreescribir el archivo
-    await File(filePath).writeAsString(csvData, encoding: utf8);
-  }
-}
-
-
-
-Future<void> CrearInventario() async{
-  print("a");
-}
-
 
 
 Future<List<dynamic>> AgregarProducto(String tipo, String colegio, String talla, String cantidad, String precio) async {
@@ -117,16 +78,12 @@ Future<List<dynamic>> AgregarProducto(String tipo, String colegio, String talla,
     print('QR generado en: $qrImagePath');
     await InsertarFilaCSV('Inventario.csv',['$tipo;$colegio;$talla;$cantidad;$precio;$qrImagePath']);
     fila = [tipo,colegio,talla,cantidad,precio,qrImagePath];
-    await Agregar_historial("Agregar", tipo, int.parse(cantidad), talla);
   } catch (e) {
     print('Error: $e');
   }
   return fila;
 }
 
-// Future<void> ModificarProducto(String tipo,String colegio,String talla,int nuevaCantidad,double nuevoPrecio,) async{
-//     final directory = await getApplicationDocumentsDirectory()
-// }
 
 
 Future<String> generarQRProducto(String tipo, String colegio, String talla, String cantidad, String precio) async {

@@ -409,6 +409,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     List<dynamic> NuevoProducto = await funcs.AgregarProducto(_nameController.text,_schoolController.text,_sizeController.text,_unitsController.text,_priceController.text);
+                    await funcs.Agregar_historial("Agregar", _nameController.text, int.parse(_unitsController.text), _sizeController.text);
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => ProductDetailsScreen(nombre: NuevoProducto[0],colegio: NuevoProducto[1],talla: NuevoProducto[2],cantidad: NuevoProducto[3],precio: NuevoProducto[4], direccionqr: NuevoProducto[5],)),
