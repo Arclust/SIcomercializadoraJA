@@ -9,45 +9,41 @@ void main() {
   
 }
 
-// class MyApp extends StatefulWidget {
-//   @override
-//   _MyAppState createState() => _MyAppState();
-// }
-//
-// class _MyAppState extends State<MyApp> {
-//   bool _usuarioExiste = false;
-//
-//   @override
-//   Future<void> initState() async{
-//     _usuarioExiste = await funcs.InicioAplicacion();
-//     print(_usuarioExiste);
-//   }
-//
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return _usuarioExiste
-//         ? MyHomePage(title: 'Camiloco')
-//         : MyHomePage(title: 'Camiloco');
-//   }
-// }
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class _MyAppState extends State<MyApp> {
+  bool _usuarioExiste = false; // Inicializa el estado
 
-  // This widget is the root of your application.
+  @override
+  void initState() {
+    super.initState();
+    _cargarDatosIniciales(); // Llama a la función que obtiene el boolean
+  }
+
+  Future<void> _cargarDatosIniciales() async {
+    // Aquí va tu lógica para obtener el boolean
+    bool resultado = await funcs.InicioAplicacion();
+
+    setState(() {
+      _usuarioExiste = resultado;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'SI - uniformes',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 41, 125, 139)),
-        useMaterial3: true,
+      home: Scaffold(
+      body: _usuarioExiste ? LoginScreen() : RegisterScreen(),
       ),
-      home: const MyHomePage(title: 'Johanna'),
     );
   }
 }
+
+
+
 
 
 //PANTALLA DE REGISTRO USUARIO
@@ -162,11 +158,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
 }
 
 
+
+
+
 //PANTALLA INICIO DE SESION
 
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -179,7 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Iniciar Sesión'),
+        title: const Text('Iniciar Sesión'),
       ),
       body: Container(
         color: Colors.blue.shade200, // Fondo azul shade 200
@@ -196,14 +195,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
-                    controller: _passwordController, // Assign the controller
-                    obscureText: true,
+                    controller: _userController,
                     decoration: const InputDecoration(
                       labelText: 'Usuario',
                       hintText: 'Ingrese su nombre de usuario',
                     ),
                   ),
-                  SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
                   TextField(
                     controller: _passwordController, // Assign the controller
                     obscureText: true,
@@ -212,22 +210,26 @@ class _LoginScreenState extends State<LoginScreen> {
                       hintText: 'Ingrese su contraseña',
                     ),
                   ),
-                  SizedBox(height: 20.0),
+                  const SizedBox(height: 20.0),
                   ElevatedButton(
                     onPressed: () async {
-                      await funcs.InicioSesion(_userController as String, _passwordController as String);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => MyHomePage(title: _userController as String,)),
-                      );
+                      bool _usuarioCoincide = await funcs.InicioSesion(_userController.text, _passwordController.text);
+                      print(_usuarioCoincide);
+                      if (_usuarioCoincide){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MyHomePage(title: _userController.text,)),
+                        );
+                      }
+
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue, // Color de fondo del botón
-                      padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
                     ),
-                    child: Text('Iniciar Sesión'),
+                    child: const Text('Iniciar Sesión'),
                   ),
-                  SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
                   GestureDetector(
                     onTap: () {
                       // Acción de "Olvidaste la contraseña"
@@ -251,6 +253,11 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 
+
+
+//PANTALLA PRINCIPAL
+
+
 class MyHomePage extends StatefulWidget {
   final String title;
 
@@ -272,7 +279,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('¡Hola! ¿Que te deseas hacer?'),
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
               Color(0xFFB3E5FC),
