@@ -267,59 +267,113 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xFF3D9CA8), // Color similar al de la barra superior en la imagen
-        title: const Text('¡Hola! ¿Que te deseas hacer?'),
+        title: const Text('¡Hola! ¿Que deseas hacer?'),
       ),
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFFB3E5FC),
-              Color(0xFF81D4FA),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+          image: DecorationImage(
+            image: AssetImage('assets/images/fondo.png'), // Asegúrate de que la imagen esté en la ruta correcta
+            fit: BoxFit.cover, // Ajusta la imagen para cubrir toda la pantalla
           ),
+
         ),
         child: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start, // Alinea al inicio del centro
             children: [
-              _buildMenuButton("Agregar producto", () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const AddProductScreen()),
-                );
-              }),
-              _buildMenuButton("Actualizar producto", () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ScanQRScreen()),
-                );
-              }),
-              _buildMenuButton("Buscador de productos", () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SearchScreen()),
-                );
-              }),
-              _buildMenuButton("Generar reporte", () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ReportScreen()),
-                );
-              }),
-              _buildMenuButton("Historial de movimientos", () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MovementsScreen()),
-                );
-              }),
+              SizedBox(height: 80), // Espacio en la parte superior
+              SizedBox(
+                width: 355,
+                height: 70,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AddProductScreen()),
+                    );
+                  },
+                  child: Text(
+                    "Agregar producto",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20), // Espacio entre los botones
+              SizedBox(
+                width: 355,
+                height: 70,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ScanQRScreen()),
+                    );
+                  },
+                  child: Text(
+                    "Actualizar producto",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20), // Espacio entre los botones
+              SizedBox(
+                width: 355,
+                height: 70,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const SearchScreen()),
+                    );
+                  },
+                  child: Text(
+                    "Buscador de productos",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20), // Espacio entre los botones
+              SizedBox(
+                width: 355,
+                height: 70,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ReportScreen()),
+                    );
+                  },
+                  child: Text(
+                    "Generar reporte",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20), // Espacio entre los botones
+              SizedBox(
+                width: 355,
+                height: 70,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MovementsScreen()),
+                    );
+                  },
+                  child: Text(
+                    "Historial de movimientos",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
   }
+}
+
 
   Widget _buildMenuButton(String text, VoidCallback onPressed) {
     return Padding(
@@ -342,7 +396,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-}
+
 
 //PANTALLA PRINCIPAL
 
