@@ -267,7 +267,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xFF3D9CA8), // Color similar al de la barra superior en la imagen
-        title: const Text('¡Hola! ¿Que te deseas hacer?'),
+        title: const Text('¡Hola! ¿Que deseas hacer?'),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -670,8 +670,152 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
 //PANTALLA BUSQUEDA CON FILTROS
 
-
 class SearchScreen extends StatefulWidget {
+  const SearchScreen({super.key});
+
+  @override
+  _SearchScreenState createState() => _SearchScreenState();
+}
+
+class _SearchScreenState extends State<SearchScreen> {
+  List<Widget> additionalButtons = [];
+  String? selectedName;
+  String? selectedCollege;
+  String? selectedSize;
+  RangeValues quantityRange = const RangeValues(0, 200);
+  RangeValues priceRange = const RangeValues(0, 30000);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Filtros de Búsqueda'),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    selectedName = value;
+                  });
+                },
+                decoration: const InputDecoration(labelText: 'Nombre'),
+              ),
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    selectedCollege = value;
+                  });
+                },
+                decoration: const InputDecoration(labelText: 'Colegio'),
+              ),
+              DropdownButton<String>(
+                value: selectedSize,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedSize = newValue;
+                  });
+                },
+                items: <String>['', 'S', 'M', 'L', 'XL']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                hint: const Text('Talla'),
+              ),
+              const Text('Rango de Cantidad'),
+              RangeSlider(
+                values: quantityRange,
+                min: 0,
+                max: 200,
+                divisions: 100,
+                labels: RangeLabels(
+                  quantityRange.start.toString(),
+                  quantityRange.end.toString(),
+                ),
+                onChanged: (RangeValues newRange) {
+                  setState(() {
+                    quantityRange = newRange;
+                  });
+                },
+              ),
+              const Text('Rango de precio'),
+              RangeSlider(
+                values: priceRange,
+                min: 0,
+                max: 30000,
+                divisions: 100,
+                labels: RangeLabels(
+                  priceRange.start.toString(),
+                  priceRange.end.toString(),
+                ),
+                onChanged: (RangeValues newRange) {
+                  setState(() {
+                    priceRange = newRange;
+                  });
+                },
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  // Aquí se aplicaría la lógica para filtrar los productos
+                  final filtrados = await funcs.FiltrarProductos(
+                      selectedName,
+                      selectedCollege,
+                      selectedSize,
+                      quantityRange,
+                      priceRange);
+                  print(filtrados);
+                  setState(() {
+                    additionalButtons = [];
+                    for (int i = 0; i < filtrados.length; i++) {
+                      String filtrado = filtrados[i][0] as String;
+
+                      // Dividir la cadena, ignorando los corchetes
+                      List<String> elemento = filtrado
+                          .substring(0, filtrado.length)
+                          .split(';');
+                      additionalButtons.add(
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProductDetailsScreen(
+                                    nombre: elemento[0],
+                                    colegio: elemento[1],
+                                    talla: elemento[2],
+                                    cantidad: elemento[3],
+                                    precio: elemento[4],
+                                    direccionqr: elemento[5]),
+                              ),
+                            );
+                          },
+                          child: Text(elemento[0]),
+                        ),
+                      );
+                    }
+                  });
+                },
+                child: const Text('Aplicar Filtros'),
+              ),
+              // Aquí mostramos los botones adicionales dentro de un Column
+              // como parte del scrollable
+              Column(
+                children: additionalButtons,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+/*class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
   @override
@@ -801,7 +945,7 @@ class _SearchScreenState extends State<SearchScreen> {
       ),
     );
   }
-}
+}*/
 
 
 //PANTALLA CREACION DE REPORTES
