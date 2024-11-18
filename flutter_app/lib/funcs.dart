@@ -378,23 +378,16 @@ Future<bool> InicioSesion(String nombreUsuario, String contrasena) async {
 
   final List<List<dynamic>> filas = const CsvToListConverter().convert(csvContent);
 
-  String fila = filas[0][0] as String;
-  List<String> elemento = fila.substring(0, fila.length).split(';');
+  for (int i = 0; i < filas.length; i++) {
+    String fila = filas[i][0] as String;
+    List<String> elemento = fila.substring(0, fila.length).split(';');
 
-  print(elemento[0]);
-  print(nombreUsuario);
-  print(elemento[1]);
-  print(contrasena);
-
-  if(elemento[1].toString() == contrasena){
-    print('b');
+    if (RegExp(nombreUsuario ?? '').hasMatch(elemento[0])) {
+      return true;
+    }
   }
 
-  if (elemento[0] == nombreUsuario && elemento[1] == contrasena) {
-    return true;
-  } else {
-    return false;
-  }
+  return false;
 }
 
 Future<bool> InicioAplicacion() async {
