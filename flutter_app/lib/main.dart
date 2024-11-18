@@ -260,7 +260,7 @@ class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
-
+// MENU
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
@@ -1184,7 +1184,7 @@ class _RequestProductScreenState extends State<RequestProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFB3E5FC), // Fondo similar al de la imagen
-      body: Center(
+      body: BackgroundContainer(
         child: Column(
           children: [
             TextField(
@@ -1272,7 +1272,7 @@ class _ModifyProductScreenState extends State<ModifyProductScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Center(
+      body: BackgroundContainer(
         child: Column(
           // ... other widgets
           children: [
@@ -1345,7 +1345,7 @@ class _QuantityModifyProductScreenState extends State<QuantityModifyProductScree
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Center(
+      body: BackgroundContainer(
         child: Column(
           // ... other widgets
           children: [
@@ -1376,11 +1376,31 @@ class _QuantityModifyProductScreenState extends State<QuantityModifyProductScree
                 }
                 Navigator.pop(context);
               },
-              child: const Text('Actualizar precio'),
+              child: const Text('Actualizar'),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+class BackgroundContainer extends StatelessWidget {
+  final Widget child;
+
+  const BackgroundContainer({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity, // Asegura que el contenedor ocupe todo el ancho
+      height: double.infinity, // Asegura que el contenedor ocupe todo el alto
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/fondo.png'), // Ruta de tu imagen
+          fit: BoxFit.cover, // Ajusta la imagen para cubrir el contenedor
+        ),
+      ),
+      child: child,
     );
   }
 }
