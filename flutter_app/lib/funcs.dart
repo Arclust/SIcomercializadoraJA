@@ -6,6 +6,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:ui' as ui;
 import 'package:intl/intl.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 List<Map<String, dynamic>> df_productos = [];
 List<Map<String, dynamic>> df_historial = [];
@@ -108,6 +110,7 @@ Future<List<dynamic>> AgregarProducto(String tipo, String colegio, String talla,
     print('QR generado en: $qrImagePath');
     await InsertarFilaCSV('Inventario.csv',['$tipo;$colegio;$talla;$cantidad;$precio;$qrImagePath']);
     fila = [tipo,colegio,talla,cantidad,precio,qrImagePath];
+
   } catch (e) {
     print('Error: $e');
   }
@@ -292,10 +295,10 @@ Future<void> ActualizarProducto(
   int cantidadActual = int.parse(cantidad);
 
   for (int i = 0; i < filas.length; i++) {
-    // Acceder al elemento i de la lista filas
+
     String fila = filas[i][0] as String;
 
-    // Dividir la cadena, ignorando los corchetes
+
     List<String> elemento = fila.substring(0, fila.length).split(';');
 
     if (
@@ -429,3 +432,53 @@ Future<void> RegistrarUsuario(String nombreUsuario,String contrasena) async {
   }
 
 }
+
+Future<void> ReporteDiario(List<Map<String, dynamic>> historial) async {
+  final pdf = pw.Document();
+  final fechaActual = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+  // Filtrar el historial para obtener solo las transacciones del día actual
+  final transaccionesDia = historial.where((registro) => registro['fecha'].substring(0, 10) == fechaActual).toList();
+
+  // Crear la tabla con los datos de las transacciones
+  final List<List<String>> datosTabla = [];
+  datosTabla.add(['Acción', 'Producto', 'Cantidad', 'Talla', 'Fecha']); // Encabezados de la tabla
+  for (var transaccion in transaccionesDia) {
+    datosTabla.add([
+      transaccion['accion'],
+      transaccion['producto'],
+      transaccion['cantidad'],
+      transaccion['talla'],
+      transaccion['fecha'],
+    ]);
+  }
+
+  pdf.addPage(
+    pw.Page(
+      build: (pw.Context context) {
+        return pw.Column(
+          children: [
+            pw.Text('Reporte Diario - $fechaActual', style: pw.TextStyle(fontSize: 24)),
+            pw.SizedBox(height: 20),
+            pw.Table.fromTextArray(
+              context: context,
+              data: datosTabla,
+            ),
+          ],
+        );
+      },
+    ),
+  );
+
+  // Guardar el archivo PDF
+  final bytes = await pdf.save();
+  final directory = await getApplicationDocumentsDirectory();
+  final file = File('${directory.path}/reporte_diario.pdf');
+  await file.writeAsBytes(bytes);
+
+  // Descargar el archivo (esto puede variar dependiendo de la plataforma)
+  // Puedes usar la librería 'open_file' o 'share_plus' para abrir o compartir el archivo
+  // Ejemplo con 'open_file':
+  // await OpenFile.open(file.path);
+}
+

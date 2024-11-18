@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'funcs.dart' as funcs;
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   funcs.cargarDatos();
@@ -862,8 +863,14 @@ class ReportScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 20),
                 child: ElevatedButton(
-                  onPressed: () {
-                    // GuardarArchivo();
+                  onPressed: () async{
+                    final historial = await funcs.LeerHistorial();
+                    await funcs.ReporteDiario(historial);
+
+                    // Obtener el archivo PDF generado
+                    final directory = await getApplicationDocumentsDirectory();
+                    final file = File('${directory.path}/reporte_diario.pdf');
+                    funcs.GuardarArchivo(file, context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF00B0FF), // Color del botón
