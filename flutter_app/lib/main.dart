@@ -937,8 +937,6 @@ class _SearchScreenState extends State<SearchScreen> {
                                     ),
                                   ),
                                 ),
-
-
                                 const SizedBox(height: 10), // Espacio entre botones
                               ],
                             ),
@@ -949,7 +947,9 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: const Text('Buscar'),
                   ),
                 ),
+                const SizedBox(height: 10),
                 Column(
+
                   children: additionalButtons,
                 ),
               ],
