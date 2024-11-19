@@ -231,19 +231,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: const Text('Iniciar Sesión'),
                   ),
-                  const SizedBox(height: 16.0),
-                  GestureDetector(
-                    onTap: () {
-                      // Acción de "Olvidaste la contraseña"
-                    },
-                    child: const Text(
-                      '¿Olvidaste la contraseña?',
-                      style: TextStyle(
-                        color: Colors.blue,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
