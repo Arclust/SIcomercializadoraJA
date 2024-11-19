@@ -78,16 +78,7 @@ int contar_registros_historial() {
   return df_historial.length;
 }
 
-// Eliminar el registro más antiguo de forma asincrónica
-// Future<void> EliminarRegistroAntiguo() async {
-//   if (df_historial.isNotEmpty) {
-//     df_historial.removeAt(0);
-//     await guardarCSV('Historial.csv', df_historial, overwrite: true);
-//     print("Registro más antiguo eliminado.");
-//   } else {
-//     print("No hay registros para eliminar.");
-//   }
-// }
+
 
 // Agregar un nuevo registro al historial de forma asincrónica
 Future<void> AgregarHistorial(String accion, String producto, int cantidad, String talla) async {
@@ -442,10 +433,9 @@ Future<void> ReporteDiario(List<Map<String, dynamic>> historial) async {
 
   // Crear la tabla con los datos de las transacciones
   final List<List<String>> datosTabla = [];
-  datosTabla.add(['Acción', 'Producto', 'Cantidad', 'Talla', 'Fecha']); // Encabezados de la tabla
+  datosTabla.add(['Producto', 'Cantidad', 'Talla', 'Fecha']); // Encabezados de la tabla
   for (var transaccion in transaccionesDia) {
     datosTabla.add([
-      transaccion['accion'],
       transaccion['producto'],
       transaccion['cantidad'],
       transaccion['talla'],
