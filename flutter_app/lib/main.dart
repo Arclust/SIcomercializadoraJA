@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'funcs.dart' as funcs;
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -1062,9 +1063,11 @@ class ReportScreen extends StatelessWidget {
                     final historial = await funcs.LeerHistorial();
                     await funcs.ReporteDiario(historial);
 
+                    final fechaActual = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
                     // Obtener el archivo PDF generado
                     final directory = await getApplicationDocumentsDirectory();
-                    final file = File('${directory.path}/reporte_diario.pdf');
+                    final file = File('${directory.path}/reporte_diario_transacciones$fechaActual.pdf');
                     funcs.GuardarArchivo(file, context);
                   },
                   style: ElevatedButton.styleFrom(
