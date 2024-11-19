@@ -380,24 +380,30 @@ Future<bool> InicioSesion(String nombreUsuario, String contrasena) async {
   String csvContent = "";
 
   try {
+    // Leer el contenido del archivo CSV
     csvContent = await File(rutaArchivo).readAsString();
   } catch (e) {
     print("Error al leer el archivo CSV: $e");
-    return false;
+    return false; // Retornar falso si no se puede leer el archivo
   }
 
-  final List<List<dynamic>> filas = const CsvToListConverter().convert(csvContent);
+  // Convertir el contenido del CSV a una lista
+  final List<List<dynamic>> filas = const CsvToListConverter().convert(csvContent, fieldDelimiter: ';');
 
-  for (int i = 0; i < filas.length; i++) {
-    String fila = filas[i][0] as String;
-    List<String> elemento = fila.substring(0, fila.length).split(';');
+  // Iterar sobre cada fila del CSV
+  for (var fila in filas) {
+    if (fila.length < 2) continue; // Ignorar filas inválidas
 
-    if (RegExp(nombreUsuario ?? '').hasMatch(elemento[0])) {
-      return true;
+    final usuario = fila[0].toString().trim();
+    final clave = fila[1].toString().trim();
+
+    // Comparar usuario y contraseña
+    if (usuario == nombreUsuario && clave == contrasena) {
+      return true; // Credenciales correctas
     }
   }
 
-  return false;
+  return false; // Credenciales incorrectas
 }
 
 Future<bool> InicioAplicacion() async {

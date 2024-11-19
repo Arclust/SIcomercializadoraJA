@@ -37,8 +37,9 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: _usuarioExiste ? LoginScreen() : RegisterScreen(),
+        body: _usuarioExiste ? const LoginScreen() : const RegisterScreen(),
       ),
     );
   }
@@ -215,9 +216,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 20.0),
                   ElevatedButton(
                     onPressed: () async {
-                      bool _usuarioCoincide = await funcs.InicioSesion(_userController.text, _passwordController.text);
-                      print(_usuarioCoincide);
-                      if (_usuarioCoincide){
+                      bool usuarioCoincide = await funcs.InicioSesion(_userController.text, _passwordController.text);
+                      if (usuarioCoincide){
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => MyHomePage(title: _userController.text,)),
@@ -254,6 +254,13 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
+
+
+
+
+//PANTALLA PRINCIPAL
+
+
 class MyHomePage extends StatefulWidget {
   final String title;
 
@@ -265,17 +272,17 @@ class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
-// MENU
+
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF3D9CA8), // Color similar al de la barra superior en la imagen
+        backgroundColor: const Color(0x00000000), // Color similar al de la barra superior en la imagen
         title: const Text('¡Hola! ¿Que deseas hacer?'),
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/fondo.png'), // Asegúrate de que la imagen esté en la ruta correcta
             fit: BoxFit.cover, // Ajusta la imagen para cubrir toda la pantalla
@@ -286,7 +293,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start, // Alinea al inicio del centro
             children: [
-              SizedBox(height: 80), // Espacio en la parte superior
+              const SizedBox(height: 80), // Espacio en la parte superior
               SizedBox(
                 width: 355,
                 height: 70,
@@ -297,13 +304,13 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(builder: (context) => const AddProductScreen()),
                     );
                   },
-                  child: Text(
+                  child: const Text(
                     "Agregar producto",
                     style: TextStyle(fontSize: 18),
                   ),
                 ),
               ),
-              SizedBox(height: 20), // Espacio entre los botones
+              const SizedBox(height: 20), // Espacio entre los botones
               SizedBox(
                 width: 355,
                 height: 70,
@@ -314,13 +321,13 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(builder: (context) => const ScanQRScreen()),
                     );
                   },
-                  child: Text(
+                  child: const Text(
                     "Actualizar producto",
                     style: TextStyle(fontSize: 18),
                   ),
                 ),
               ),
-              SizedBox(height: 20), // Espacio entre los botones
+              const SizedBox(height: 20), // Espacio entre los botones
               SizedBox(
                 width: 355,
                 height: 70,
@@ -331,13 +338,13 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(builder: (context) => const SearchScreen()),
                     );
                   },
-                  child: Text(
+                  child: const Text(
                     "Buscador de productos",
                     style: TextStyle(fontSize: 18),
                   ),
                 ),
               ),
-              SizedBox(height: 20), // Espacio entre los botones
+              const SizedBox(height: 20), // Espacio entre los botones
               SizedBox(
                 width: 355,
                 height: 70,
@@ -348,13 +355,13 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(builder: (context) => const ReportScreen()),
                     );
                   },
-                  child: Text(
+                  child: const Text(
                     "Generar reporte",
                     style: TextStyle(fontSize: 18),
                   ),
                 ),
               ),
-              SizedBox(height: 20), // Espacio entre los botones
+              const SizedBox(height: 20), // Espacio entre los botones
               SizedBox(
                 width: 355,
                 height: 70,
@@ -366,7 +373,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(builder: (context) => MovementsScreen(movimientos: movements)),
                     );
                   },
-                  child: Text(
+                  child: const Text(
                     "Historial de movimientos",
                     style: TextStyle(fontSize: 18),
                   ),
@@ -404,85 +411,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 
-//PANTALLA PRINCIPAL
 
 
-/*class MyHomePage extends StatefulWidget {
-  final String title;
-
-  const MyHomePage({
-    super.key,
-    required this.title,
-  });
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('¡Hola ${widget.title}!¿Que te gustaria hacer?'),
-      ),
-      body: Center(
-        child: Column(
-          // ... other widgets
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const AddProductScreen()),
-                );
-              },
-              child: const Text('Agregar producto'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                   context,
-                   MaterialPageRoute(builder: (context) => ScanQRScreen()),
-                );
-              },
-              child: const Text('Actualizar producto'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SearchScreen()),
-                );
-              },
-              child: const Text('Buscador de productos'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ReportScreen()),
-                );
-              },
-              child: const Text('Generar reporte'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                //funcs.
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MovementsScreen()),
-                );
-              },
-              child: const Text('Historial de movimientos'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}*/
 
 // PANTALLA HISTORIAL DE MOVIMIENTOS
 
@@ -502,7 +432,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Historial de Movimientos"),
+        title: const Text("Historial de Movimientos"),
       ),
       body: ListView.builder(
         itemCount: widget.movimientos.length,
@@ -535,7 +465,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
   Color obtenerColor(String accion) {
     switch (accion) {
       case "Agregar":
-        return Color.fromRGBO(139, 255, 110, 1);
+        return const Color.fromRGBO(139, 255, 110, 1);
       case "Disminuir":
       case "Aumentar":
         return Colors.blue;
@@ -652,7 +582,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.black,
-                      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                     ),
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
@@ -723,7 +653,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     final File imageFile = File(widget.direccionqr);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detalles del Producto'),
+        title: const Text('Detalles del Producto'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -735,7 +665,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             Text('Talla: ${widget.talla}'),
             Text('Cantidad: ${widget.cantidad}'),
             Text('Precio: ${widget.precio}'),
-            SizedBox(height: 16.0), // Add some spacing,
+            const SizedBox(height: 16.0), // Add some spacing,
             Image.file(imageFile),
             const SizedBox(height: 16.0), // Add some spacing between image and button
             ElevatedButton(
@@ -857,7 +787,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                   child: DropdownButton<String>(
                     value: selectedSize,
-                    isExpanded: true, // Para ocupar todo el ancho del contenedor
+                    isExpanded: true,
                     underline: Container(), // Remueve la línea inferior predeterminada
                     onChanged: (String? newValue) {
                       setState(() {
@@ -949,8 +879,8 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Container(
-                  width: double.infinity, // Botón ocupa todo el ancho
+                SizedBox(
+                  width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () async {
                       // Lógica para aplicar filtros
@@ -961,7 +891,6 @@ class _SearchScreenState extends State<SearchScreen> {
                         quantityRange,
                         priceRange,
                       );
-                      print(filtrados);
                       setState(() {
                         additionalButtons = [];
                         for (int i = 0; i < filtrados.length; i++) {
@@ -972,24 +901,44 @@ class _SearchScreenState extends State<SearchScreen> {
                           additionalButtons.add(
                             Column(
                               children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ProductDetailsScreen(
-                                          nombre: elemento[0],
-                                          colegio: elemento[1],
-                                          talla: elemento[2],
-                                          cantidad: elemento[3],
-                                          precio: elemento[4],
-                                          direccionqr: elemento[5],
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ProductDetailsScreen(
+                                            nombre: elemento[0],
+                                            colegio: elemento[1],
+                                            talla: elemento[2],
+                                            cantidad: elemento[3],
+                                            precio: elemento[4],
+                                            direccionqr: elemento[5],
+                                          ),
                                         ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white, // Fondo blanco
+                                      elevation: 3, // Sombra del botón
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(15), // Bordes redondeados
                                       ),
-                                    );
-                                  },
-                                  child: Text(elemento[0]),
+                                      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                                      alignment: Alignment.centerLeft,
+                                    ),
+                                    child: Text(
+                                      elemento[0], // Texto dinámico
+                                      style: const TextStyle(
+                                        color: Colors.black87, // Texto en color oscuro
+                                        fontSize: 16, // Tamaño del texto
+                                      ),
+                                    ),
+                                  ),
                                 ),
+
+
                                 const SizedBox(height: 10), // Espacio entre botones
                               ],
                             ),
@@ -1071,7 +1020,7 @@ class ReportScreen extends StatelessWidget {
                     funcs.GuardarArchivo(file, context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF00B0FF), // Color del botón
+                    backgroundColor: const Color(0xFF00B0FF), // Color del botón
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -1243,7 +1192,7 @@ class _RequestProductScreenState extends State<RequestProductScreen> {
             ElevatedButton(
               onPressed: () async {
                 // Aquí se aplicaría la lógica para filtrar los productos
-                final aModificar = await funcs.FiltrarProductos(selectedName, selectedCollege, selectedSize,RangeValues(0, 500), RangeValues(0, 50000));
+                final aModificar = await funcs.FiltrarProductos(selectedName, selectedCollege, selectedSize,const RangeValues(0, 500), const RangeValues(0, 50000));
                 String fila = aModificar[0][0] as String;
 
                 // Dividir la cadena, ignorando los corchetes
@@ -1435,8 +1384,8 @@ class BackgroundContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity, // Asegura que el contenedor ocupe todo el ancho
-      height: double.infinity, // Asegura que el contenedor ocupe todo el alto
+      width: double.infinity,
+      height: double.infinity,
       decoration: const BoxDecoration(
         image: DecorationImage(
           image: AssetImage('assets/images/fondo.png'), // Ruta de tu imagen
