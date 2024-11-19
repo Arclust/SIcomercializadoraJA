@@ -234,30 +234,47 @@ Future<List<List<dynamic>>> FiltrarProductos(
 
 Future<void> GuardarArchivo(File archivo, BuildContext context) async {
   try {
-    // Obtener la carpeta de descargas del dispositivo
-    final directory = await getExternalStorageDirectory();
+    // Verificar si el archivo existe antes de copiarlo
+    if (!archivo.existsSync()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('El archivo no existe para guardar.')),
+      );
+      return;
+    }
 
-    // Crear un nuevo nombre de archivo (opcional)
-    // Puedes personalizar el nombre basado en el nombre original del archivo
+    // Definir la carpeta de descargas
+    final directory = Directory('/storage/emulated/0/Download');
+
+    // Crear la carpeta de descargas si no existe (en dispositivos antiguos puede ser necesario)
+    if (!directory.existsSync()) {
+      directory.createSync(recursive: true);
+    }
+
+    // Crear un nuevo nombre para el archivo
     final nuevoNombre = 'copia_de_${archivo.path.split('/').last}';
+    final nuevaRuta = '${directory.path}/$nuevoNombre';
 
-    // Crear la ruta completa del nuevo archivo
-    final nuevaRuta = '${directory?.path}/$nuevoNombre';
-
-    // Copiar el archivo a la nueva ubicación
+    // Copiar el archivo a la carpeta de descargas
     await archivo.copy(nuevaRuta);
 
-    // Informar al usuario (puedes usar un snackbar o un diálogo)
+    // Informar al usuario que el archivo fue guardado exitosamente
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Archivo guardado exitosamente')),
+      SnackBar(content: Text('Archivo guardado exitosamente en Descargas como $nuevoNombre')),
     );
+
+    // Imprimir la ruta para depuración
+    print('Archivo guardado en: $nuevaRuta');
   } catch (e) {
-    // Mostrar un mensaje de error al usuario
+    // Mostrar un mensaje de error si ocurre una excepción
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Error al guardar el archivo: $e')),
     );
+
+    // Imprimir el error en la consola para depuración
+    print('Error: $e');
   }
 }
+
 
 Future<void> ActualizarProducto(
     String nombre,
@@ -429,31 +446,51 @@ Future<void> ReporteDiario(List<Map<String, dynamic>> historial) async {
   final pdf = pw.Document();
   final fechaActual = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
-  // Filtrar el historial para obtener solo las transacciones del día actual
+  // Filtrar las transacciones del día actual
   final transaccionesDia = historial.where((registro) => registro['fecha'].substring(0, 10) == fechaActual).toList();
 
-  // Crear la tabla con los datos de las transacciones
-  final List<List<String>> datosTabla = [];
-  datosTabla.add(['Producto', 'Cantidad', 'Talla', 'Fecha']); // Encabezados de la tabla
+  // Crear un mapa para almacenar el total por producto
+  final Map<String, int> resumenPorProducto = {};
+
+  // Procesar cada transacción
   for (var transaccion in transaccionesDia) {
-    datosTabla.add([
-      transaccion['producto'],
-      transaccion['cantidad'],
-      transaccion['talla'],
-      transaccion['fecha'],
-    ]);
+    final tipoAccion = transaccion['accion'];
+    final producto = transaccion['producto'];
+    final cantidad = int.parse(transaccion['cantidad']);
+
+    if (tipoAccion == 'Disminuir') {
+      resumenPorProducto[producto] = (resumenPorProducto[producto] ?? 0) - cantidad;
+    } else if (tipoAccion == 'Aumentar') {
+      resumenPorProducto[producto] = (resumenPorProducto[producto] ?? 0) + cantidad;
+    }
   }
 
+  // Crear los datos de la tabla para el PDF
+  final List<List<String>> datosTabla = [
+    ['Producto', 'Total'], // Encabezados
+  ];
+
+  resumenPorProducto.forEach((producto, total) {
+    datosTabla.add([producto, total.toString()]);
+  });
+
+  // Añadir contenido al PDF
   pdf.addPage(
     pw.Page(
       build: (pw.Context context) {
         return pw.Column(
           children: [
-            pw.Text('Reporte Diario - $fechaActual', style: pw.TextStyle(fontSize: 24)),
+            pw.Text(
+              'Reporte Diario de Transacciones - $fechaActual',
+              style: pw.TextStyle(font: pw.Font.courier(), fontSize: 24), // Fuente Courier por defecto
+            ),
             pw.SizedBox(height: 20),
             pw.Table.fromTextArray(
               context: context,
               data: datosTabla,
+              headerStyle: pw.TextStyle(font: pw.Font.courierBold()), // Courier en negrita
+              cellStyle: pw.TextStyle(font: pw.Font.courier()), // Courier normal
+              cellAlignment: pw.Alignment.centerLeft,
             ),
           ],
         );
@@ -461,14 +498,14 @@ Future<void> ReporteDiario(List<Map<String, dynamic>> historial) async {
     ),
   );
 
+
   // Guardar el archivo PDF
   final bytes = await pdf.save();
   final directory = await getApplicationDocumentsDirectory();
-  final file = File('${directory.path}/reporte_diario.pdf');
+  final file = File('${directory.path}/reporte_diario_transacciones$fechaActual.pdf');
   await file.writeAsBytes(bytes);
 
-  // Descargar el archivo (esto puede variar dependiendo de la plataforma)
-  // Puedes usar la librería 'open_file' o 'share_plus' para abrir o compartir el archivo
+  // Opcional: abrir o compartir el archivo
   // Ejemplo con 'open_file':
   // await OpenFile.open(file.path);
 }
