@@ -781,7 +781,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         selectedSize = newValue;
                       });
                     },
-                    items: <String>['', 'S', 'M', 'L', 'XL']
+                    items: <String>['', '3', '4', '6', '8', '10', '12', '14', '16', 'S', 'M', 'L', 'XL', 'XXL']
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -1093,7 +1093,9 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => ModifyProductScreen(nombre: elemento[0], colegio: elemento[1], talla: elemento[2], cantidad: elemento[3], precio: elemento[4])),
-          );// Call the dialog function
+          );
+          // Pause the camera after navigation
+          controller.pauseCamera();
         });
       }
     });
