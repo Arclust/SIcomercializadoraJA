@@ -1078,7 +1078,23 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
               ),
             ),
           ),
+          _backButton(),
+          const SizedBox(height: 20),
+
         ],
+      ),
+    );
+  }
+
+  Widget _backButton() {
+    return Positioned(
+      top: 20,
+      left: 20,
+      child: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          Navigator.pop(context);
+        },
       ),
     );
   }
