@@ -358,10 +358,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: 355,
                 height: 70,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    var movements = await funcs.LeerHistorial();
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => MovementsScreen()),
+                      MaterialPageRoute(builder: (context) => MovementsScreen(movimientos: movements)),
                     );
                   },
                   child: Text(
@@ -485,17 +486,16 @@ class _MyHomePageState extends State<MyHomePage> {
 // PANTALLA HISTORIAL DE MOVIMIENTOS
 
 class MovementsScreen extends StatefulWidget {
-  const MovementsScreen({super.key});
+  final List<Map<String, dynamic>> movimientos;
+  const MovementsScreen({super.key,
+    required this.movimientos,
+  });
 
   @override
   _MovementsScreenState createState() => _MovementsScreenState();
 }
 
 class _MovementsScreenState extends State<MovementsScreen> {
-  // Datos de ejemplo para los movimientos
-  final List<Map<String, dynamic>> movimientos = [
-    {"accion": "add", "producto": "Polera negra", "cantidad": "9", "talla": "L", "fecha": "2023-11-14"},
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -504,9 +504,9 @@ class _MovementsScreenState extends State<MovementsScreen> {
         title: Text("Historial de Movimientos"),
       ),
       body: ListView.builder(
-        itemCount: movimientos.length,
+        itemCount: widget.movimientos.length,
         itemBuilder: (context, index) {
-          final movimiento = movimientos[index];
+          final movimiento = widget.movimientos[index];
           final color = obtenerColor(movimiento["accion"]);
 
           return Card(
@@ -521,7 +521,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
                 style: TextStyle(color: color),
               ),
               subtitle: Text(
-              'Cantidad: ${movimiento['cantidad']}, Talla: ${movimiento['talla']}, Fecha: ${movimiento['fecha']}',
+                'Cantidad: ${movimiento['cantidad']}, Talla: ${movimiento['talla']}, Fecha: ${movimiento['fecha']}',
               ),
             ),
           );
@@ -533,11 +533,12 @@ class _MovementsScreenState extends State<MovementsScreen> {
   // Retorna el color dependiendo de la acción
   Color obtenerColor(String accion) {
     switch (accion) {
-      case "add":
+      case "Agregar":
         return Color.fromRGBO(139, 255, 110, 1);
-      case "update":
+      case "Disminuir":
+      case "Aumentar":
         return Colors.blue;
-      case "delete":
+      case "Eliminar":
         return Colors.red;
       default:
         return Colors.grey;
