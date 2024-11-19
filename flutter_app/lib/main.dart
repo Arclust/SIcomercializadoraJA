@@ -578,82 +578,112 @@ class _AddProductScreenState extends State<AddProductScreen> {
       appBar: AppBar(
         title: const Text('Agregar Producto'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Tipo de producto'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return '¡Falta el nombre del producto!';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _schoolController,
-                decoration: const InputDecoration(labelText: 'Colegio del producto'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return '¡Falta el colegio al que pertenece!';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _sizeController,
-                decoration: const InputDecoration(labelText: 'Talla del producto'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return '¡Falta la talla la cual es!';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _unitsController,
-                decoration: const InputDecoration(labelText: 'Cantidad del producto'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return '¡Falta una cantidad inicial!';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _priceController,
-                decoration: const InputDecoration(labelText: 'Precio del producto'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return '¡Falta el precio por unidad!';
-                  }
-                  return null;
-                },
-              ),
-              // ... otros TextFormField para descripción y precio
-              ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    List<dynamic> NuevoProducto = await funcs.AgregarProducto(_nameController.text,_schoolController.text,_sizeController.text,_unitsController.text,_priceController.text);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ProductDetailsScreen(nombre: NuevoProducto[0],colegio: NuevoProducto[1],talla: NuevoProducto[2],cantidad: NuevoProducto[3],precio: NuevoProducto[4], direccionqr: NuevoProducto[5],)),
-                    );
-                  }
-                },
-                child: const Text('Guardar Producto'),
-              ),
-            ],
+      body: BackgroundContainer(
+        child: SingleChildScrollView( // Permite desplazarse si el contenido es extenso
+          padding: const EdgeInsets.all(16.0), // Agrega un margen alrededor del contenido
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(labelText: 'Tipo de producto', filled: true, fillColor: Colors.white, ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '¡Falta el nombre del producto!';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20), // Espacio entre campos
+                TextFormField(
+                  controller: _schoolController,
+                  decoration: const InputDecoration(labelText: 'Colegio del producto', filled: true, fillColor: Colors.white, ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '¡Falta el colegio al que pertenece!';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20), // Espacio entre campos
+                TextFormField(
+                  controller: _sizeController,
+                  decoration: const InputDecoration(labelText: 'Talla del producto', filled: true, fillColor: Colors.white, ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '¡Falta la talla la cual es!';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20), // Espacio entre campos
+                TextFormField(
+                  controller: _unitsController,
+                  decoration: const InputDecoration(labelText: 'Cantidad del producto', filled: true, fillColor: Colors.white,),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '¡Falta una cantidad inicial!';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20), // Espacio entre campos
+                TextFormField(
+                  controller: _priceController,
+                  decoration: const InputDecoration(labelText: 'Precio del producto', filled: true, fillColor: Colors.white, ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '¡Falta el precio por unidad!';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 30), // Espacio antes del botón
+                Center( // Centra el botón
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                    ),
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        List<dynamic> nuevoProducto = await funcs.AgregarProducto(
+                          _nameController.text,
+                          _schoolController.text,
+                          _sizeController.text,
+                          _unitsController.text,
+                          _priceController.text,
+                        );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProductDetailsScreen(
+                              nombre: nuevoProducto[0],
+                              colegio: nuevoProducto[1],
+                              talla: nuevoProducto[2],
+                              cantidad: nuevoProducto[3],
+                              precio: nuevoProducto[4],
+                              direccionqr: nuevoProducto[5],
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    child: const Text('Guardar Producto'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 }
+
 
 
 //PANTALLA DE DETALLES PRODUCTO
@@ -730,7 +760,6 @@ class SearchScreen extends StatefulWidget {
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }
-
 class _SearchScreenState extends State<SearchScreen> {
   List<Widget> additionalButtons = [];
   String? selectedName;
@@ -745,130 +774,238 @@ class _SearchScreenState extends State<SearchScreen> {
       appBar: AppBar(
         title: const Text('Filtros de Búsqueda'),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              TextField(
-                onChanged: (value) {
-                  setState(() {
-                    selectedName = value;
-                  });
-                },
-                decoration: const InputDecoration(labelText: 'Nombre'),
-              ),
-              TextField(
-                onChanged: (value) {
-                  setState(() {
-                    selectedCollege = value;
-                  });
-                },
-                decoration: const InputDecoration(labelText: 'Colegio'),
-              ),
-              DropdownButton<String>(
-                value: selectedSize,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedSize = newValue;
-                  });
-                },
-                items: <String>['', 'S', 'M', 'L', 'XL']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                hint: const Text('Talla'),
-              ),
-              const Text('Rango de Cantidad'),
-              RangeSlider(
-                values: quantityRange,
-                min: 0,
-                max: 200,
-                divisions: 100,
-                labels: RangeLabels(
-                  quantityRange.start.toString(),
-                  quantityRange.end.toString(),
+      body: BackgroundContainer(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white, // Fondo blanco
+                    borderRadius: BorderRadius.circular(10.0), // Bordes redondeados
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        selectedName = value;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre',
+                      border: InputBorder.none,
+                    ),
+                  ),
                 ),
-                onChanged: (RangeValues newRange) {
-                  setState(() {
-                    quantityRange = newRange;
-                  });
-                },
-              ),
-              const Text('Rango de precio'),
-              RangeSlider(
-                values: priceRange,
-                min: 0,
-                max: 30000,
-                divisions: 100,
-                labels: RangeLabels(
-                  priceRange.start.toString(),
-                  priceRange.end.toString(),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white, // Fondo blanco
+                    borderRadius: BorderRadius.circular(10.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        selectedCollege = value;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Colegio',
+                      border: InputBorder.none,
+                    ),
+                  ),
                 ),
-                onChanged: (RangeValues newRange) {
-                  setState(() {
-                    priceRange = newRange;
-                  });
-                },
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  // Aquí se aplicaría la lógica para filtrar los productos
-                  final filtrados = await funcs.FiltrarProductos(
-                      selectedName,
-                      selectedCollege,
-                      selectedSize,
-                      quantityRange,
-                      priceRange);
-                  print(filtrados);
-                  setState(() {
-                    additionalButtons = [];
-                    for (int i = 0; i < filtrados.length; i++) {
-                      String filtrado = filtrados[i][0] as String;
-
-                      // Dividir la cadena, ignorando los corchetes
-                      List<String> elemento = filtrado
-                          .substring(0, filtrado.length)
-                          .split(';');
-                      additionalButtons.add(
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProductDetailsScreen(
-                                    nombre: elemento[0],
-                                    colegio: elemento[1],
-                                    talla: elemento[2],
-                                    cantidad: elemento[3],
-                                    precio: elemento[4],
-                                    direccionqr: elemento[5]),
-                              ),
-                            );
-                          },
-                          child: Text(elemento[0]),
-                        ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white, // Fondo blanco
+                    borderRadius: BorderRadius.circular(10.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: DropdownButton<String>(
+                    value: selectedSize,
+                    isExpanded: true, // Para ocupar todo el ancho del contenedor
+                    underline: Container(), // Remueve la línea inferior predeterminada
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedSize = newValue;
+                      });
+                    },
+                    items: <String>['', 'S', 'M', 'L', 'XL']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
                       );
-                    }
-                  });
-                },
-                child: const Text('Aplicar Filtros'),
-              ),
-              // Aquí mostramos los botones adicionales dentro de un Column
-              // como parte del scrollable
-              Column(
-                children: additionalButtons,
-              ),
-            ],
+                    }).toList(),
+                    hint: const Text('Talla'),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Rango de Cantidad'),
+                      RangeSlider(
+                        values: quantityRange,
+                        min: 0,
+                        max: 200,
+                        divisions: 100,
+                        labels: RangeLabels(
+                          quantityRange.start.toString(),
+                          quantityRange.end.toString(),
+                        ),
+                        onChanged: (RangeValues newRange) {
+                          setState(() {
+                            quantityRange = newRange;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Rango de Precio'),
+                      RangeSlider(
+                        values: priceRange,
+                        min: 0,
+                        max: 30000,
+                        divisions: 100,
+                        labels: RangeLabels(
+                          priceRange.start.toString(),
+                          priceRange.end.toString(),
+                        ),
+                        onChanged: (RangeValues newRange) {
+                          setState(() {
+                            priceRange = newRange;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  width: double.infinity, // Botón ocupa todo el ancho
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      // Lógica para aplicar filtros
+                      final filtrados = await funcs.FiltrarProductos(
+                        selectedName,
+                        selectedCollege,
+                        selectedSize,
+                        quantityRange,
+                        priceRange,
+                      );
+                      print(filtrados);
+                      setState(() {
+                        additionalButtons = [];
+                        for (int i = 0; i < filtrados.length; i++) {
+                          String filtrado = filtrados[i][0] as String;
+
+                          // Dividir la cadena en elementos
+                          List<String> elemento = filtrado.split(';');
+                          additionalButtons.add(
+                            Column(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ProductDetailsScreen(
+                                          nombre: elemento[0],
+                                          colegio: elemento[1],
+                                          talla: elemento[2],
+                                          cantidad: elemento[3],
+                                          precio: elemento[4],
+                                          direccionqr: elemento[5],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(elemento[0]),
+                                ),
+                                const SizedBox(height: 10), // Espacio entre botones
+                              ],
+                            ),
+                          );
+                        }
+                      });
+                    },
+                    child: const Text('Buscar'),
+                  ),
+                ),
+                Column(
+                  children: additionalButtons,
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 }
+
+
 /*class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
@@ -1274,9 +1411,12 @@ class _ModifyProductScreenState extends State<ModifyProductScreen> {
       ),
       body: BackgroundContainer(
         child: Column(
-          // ... other widgets
+          mainAxisAlignment: MainAxisAlignment.center, // Centra los botones verticalmente
           children: [
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(355, 70), // Ancho y alto
+              ),
               onPressed: () async {
                 Navigator.push(
                   context,
@@ -1285,7 +1425,11 @@ class _ModifyProductScreenState extends State<ModifyProductScreen> {
               },
               child: const Text('Aumentar cantidad'),
             ),
+            const SizedBox(height: 20), // Espacio entre botones
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(355, 70), // Ancho y alto
+              ),
               onPressed: () async {
                 Navigator.push(
                   context,
@@ -1294,7 +1438,11 @@ class _ModifyProductScreenState extends State<ModifyProductScreen> {
               },
               child: const Text('Disminuir cantidad'),
             ),
+            const SizedBox(height: 20), // Espacio entre botones
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(355, 70), // Ancho y alto
+              ),
               onPressed: () async {
                 Navigator.push(
                   context,
@@ -1309,6 +1457,7 @@ class _ModifyProductScreenState extends State<ModifyProductScreen> {
     );
   }
 }
+
 
 
 //PANTALLA CANTIDAD DESEADA ACTUALIZAR
@@ -1346,9 +1495,14 @@ class _QuantityModifyProductScreenState extends State<QuantityModifyProductScree
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: BackgroundContainer(
+        child: Container(
+          width: 355,
+          height: 70, padding: const EdgeInsets.all(20.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           // ... other widgets
           children: [
+
             TextField(
               onChanged: (value) {
                 setState(() {
@@ -1356,6 +1510,8 @@ class _QuantityModifyProductScreenState extends State<QuantityModifyProductScree
                 });
               },
               decoration: InputDecoration(
+                filled: true, // Activa el fondo relleno
+                fillColor: Colors.white, // Color de fondo
                 labelText: widget.accion == 'aumentar'
                   ? 'Ingrese cuanto desea aumentar'
                   : widget.accion == 'disminuir'
@@ -1377,8 +1533,10 @@ class _QuantityModifyProductScreenState extends State<QuantityModifyProductScree
                 Navigator.pop(context);
               },
               child: const Text('Actualizar'),
+
             ),
           ],
+        ),
         ),
       ),
     );
