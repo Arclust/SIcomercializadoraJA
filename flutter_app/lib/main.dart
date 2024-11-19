@@ -2,50 +2,49 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'funcs.dart' as funcs;
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
+  funcs.cargarDatos();
   runApp(MyApp());
+
 }
 
-// class MyApp extends StatefulWidget {
-//   @override
-//   _MyAppState createState() => _MyAppState();
-// }
-//
-// class _MyAppState extends State<MyApp> {
-//   bool _usuarioExiste = false;
-//
-//   @override
-//   Future<void> initState() async{
-//     _usuarioExiste = await funcs.InicioAplicacion();
-//     print(_usuarioExiste);
-//   }
-//
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return _usuarioExiste
-//         ? MyHomePage(title: 'Camiloco')
-//         : MyHomePage(title: 'Camiloco');
-//   }
-// }
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class _MyAppState extends State<MyApp> {
+  bool _usuarioExiste = false; // Inicializa el estado
 
-  // This widget is the root of your application.
+  @override
+  void initState() {
+    super.initState();
+    _cargarDatosIniciales(); // Llama a la función que obtiene el boolean
+  }
+
+  Future<void> _cargarDatosIniciales() async {
+    // Aquí va tu lógica para obtener el boolean
+    bool resultado = await funcs.InicioAplicacion();
+
+    setState(() {
+      _usuarioExiste = resultado;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'SI - uniformes',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 41, 125, 139)),
-        useMaterial3: true,
+      home: Scaffold(
+        body: _usuarioExiste ? LoginScreen() : RegisterScreen(),
       ),
-      home: const MyHomePage(title: 'Johanna'),
     );
   }
 }
+
+
+
 
 
 //PANTALLA DE REGISTRO USUARIO
@@ -160,11 +159,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
 }
 
 
+
+
+
 //PANTALLA INICIO DE SESION
 
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -177,7 +179,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Iniciar Sesión'),
+        title: const Text('Iniciar Sesión'),
       ),
       body: Container(
         color: Colors.blue.shade200, // Fondo azul shade 200
@@ -194,14 +196,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
-                    controller: _passwordController, // Assign the controller
-                    obscureText: true,
+                    controller: _userController,
                     decoration: const InputDecoration(
                       labelText: 'Usuario',
                       hintText: 'Ingrese su nombre de usuario',
                     ),
                   ),
-                  SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
                   TextField(
                     controller: _passwordController, // Assign the controller
                     obscureText: true,
@@ -210,22 +211,26 @@ class _LoginScreenState extends State<LoginScreen> {
                       hintText: 'Ingrese su contraseña',
                     ),
                   ),
-                  SizedBox(height: 20.0),
+                  const SizedBox(height: 20.0),
                   ElevatedButton(
                     onPressed: () async {
-                      await funcs.InicioSesion(_userController as String, _passwordController as String);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => MyHomePage(title: _userController as String,)),
-                      );
+                      bool _usuarioCoincide = await funcs.InicioSesion(_userController.text, _passwordController.text);
+                      print(_usuarioCoincide);
+                      if (_usuarioCoincide){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MyHomePage(title: _userController.text,)),
+                        );
+                      }
+
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue, // Color de fondo del botón
-                      padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
                     ),
-                    child: Text('Iniciar Sesión'),
+                    child: const Text('Iniciar Sesión'),
                   ),
-                  SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
                   GestureDetector(
                     onTap: () {
                       // Acción de "Olvidaste la contraseña"
@@ -247,7 +252,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
 
 class MyHomePage extends StatefulWidget {
   final String title;
@@ -657,6 +661,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                           _unitsController.text,
                           _priceController.text,
                         );
+                        await funcs.AgregarHistorial("Agregar", _nameController.text, int.parse(_unitsController.text), _sizeController.text);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -1006,137 +1011,7 @@ class _SearchScreenState extends State<SearchScreen> {
 }
 
 
-/*class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
 
-  @override
-  _SearchScreenState createState() => _SearchScreenState();
-}
-
-class _SearchScreenState extends State<SearchScreen> {
-  List<Widget> additionalButtons = [];
-  String? selectedName;
-  String? selectedCollege;
-  String? selectedSize;
-  RangeValues quantityRange = const RangeValues(0, 200);
-  RangeValues priceRange = const RangeValues(0, 30000);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Filtros de Búsqueda'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              onChanged: (value) {
-                setState(() {
-                  selectedName = value;
-                });
-              },
-              decoration: const InputDecoration(labelText: 'Nombre'),
-            ),
-            TextField(
-              onChanged: (value) {
-                setState(() {
-                  selectedCollege = value;
-                });
-              },
-              decoration: const InputDecoration(labelText: 'Colegio'),
-            ),
-            DropdownButton<String>(
-              value: selectedSize,
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedSize = newValue;
-                });
-              },
-              items: <String>['','S', 'M', 'L', 'XL'].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              hint: const Text('Talla'),
-            ),
-            const Text('Rango de Cantidad'),
-            RangeSlider(
-              values: quantityRange,
-              min: 0,
-              max: 200,
-              divisions: 100,
-              labels: RangeLabels(
-                quantityRange.start.toString(),
-                quantityRange.end.toString(),
-              ),
-              onChanged: (RangeValues newRange) {
-                setState(() {
-                  quantityRange = newRange;
-                });
-              },
-            ),
-            const Text('Rango de precio'),
-            RangeSlider(
-              values: priceRange,
-              min: 0,
-              max: 30000,
-              divisions: 100,
-              labels: RangeLabels(
-                priceRange.start.toString(),
-                priceRange.end.toString(),
-              ),
-              onChanged: (RangeValues newRange) {
-                setState(() {
-                  priceRange = newRange;
-                });
-              },
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                // Aquí se aplicaría la lógica para filtrar los productos
-                final filtrados = await funcs.FiltrarProductos(selectedName, selectedCollege, selectedSize, quantityRange, priceRange);
-                print(filtrados);
-                setState(() {
-                  additionalButtons = [];
-                  for (int i = 0; i < filtrados.length; i++){
-                    String filtrado = filtrados[i][0] as String;
-
-                    // Dividir la cadena, ignorando los corchetes
-                    List<String> elemento = filtrado.substring(0, filtrado.length).split(';');
-                    additionalButtons.add(
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => ProductDetailsScreen(nombre: elemento[0],colegio: elemento[1],talla: elemento[2],cantidad: elemento[3],precio: elemento[4], direccionqr: elemento[5])),
-                          );
-                        },
-                        child: Text(elemento[0]),
-                      ),
-                    );
-                  }
-
-                });
-              },
-              child: const Text('Aplicar Filtros'),
-            ),
-            SingleChildScrollView(
-              child: Column(
-                children: [
-                  // ... other elements
-                  ...additionalButtons,
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}*/
 
 
 //PANTALLA CREACION DE REPORTES
@@ -1182,8 +1057,14 @@ class ReportScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 20),
                 child: ElevatedButton(
-                  onPressed: () {
-                    // GuardarArchivo();
+                  onPressed: () async{
+                    final historial = await funcs.LeerHistorial();
+                    await funcs.ReporteDiario(historial);
+
+                    // Obtener el archivo PDF generado
+                    final directory = await getApplicationDocumentsDirectory();
+                    final file = File('${directory.path}/reporte_diario.pdf');
+                    funcs.GuardarArchivo(file, context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF00B0FF), // Color del botón
