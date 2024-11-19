@@ -5,12 +5,88 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:ui' as ui;
-import 'package:dio/dio.dart';
+import 'package:intl/intl.dart';
+import 'package:pdf/widgets.dart' as pw;
+
+List<Map<String, dynamic>> df_productos = [];
+List<Map<String, dynamic>> df_historial = [];
+
+Future<List<Map<String, dynamic>>> LeerHistorial() async {
+  final List<Map<String, dynamic>> movimientos = [];
+  final directory = await getApplicationDocumentsDirectory();
+  final File archivo = File('${directory.path}/Historial.csv');
+
+  if (await archivo.exists()) {
+    // Leer el archivo CSV
+    final List<String> lineas = await archivo.readAsLines();
+
+    // Procesar cada línea del archivo (asumiendo que tiene encabezados)
+    for (int i = 1; i < lineas.length; i++) {
+      final String linea = lineas[i];
+      final List<String> columnas = linea.split(';');
+
+      // Crear un registro basado en las columnas (ajusta los índices si es necesario)
+      movimientos.add({
+        'accion': columnas[0].trim(), // Ajusta según las columnas del CSV
+        'producto': columnas[1].trim(),
+        'cantidad': columnas[2].trim(),
+        'talla': columnas[3].trim(),
+        'fecha': columnas[4].trim(),
+      });
+    }
+  } else {
+    print('El archivo no existe en la ruta proporcionada');
+  }
+
+  return movimientos;
+}
+
+// Función para cargar archivos CSV en una lista de mapas de manera asincrónica
+Future<List<Map<String, dynamic>>> cargarCSV(String filePath) async {
+  final file = File(filePath);
+
+  if (!await file.exists()) {
+    return [];
+  }
+
+  final csvData = await file.readAsString();
+  List<List<dynamic>> rowsAsListOfValues = const CsvToListConverter(fieldDelimiter: ';', eol: '\n').convert(csvData);
+
+  List<Map<String, dynamic>> registros = [];
+  List<String> headers = rowsAsListOfValues[0].map((header) => header.toString()).toList();
+
+  for (var i = 1; i < rowsAsListOfValues.length; i++) {
+    Map<String, dynamic> registro = {};
+    for (var j = 0; j < headers.length; j++) {
+      registro[headers[j]] = rowsAsListOfValues[i][j];
+    }
+    registros.add(registro);
+  }
+
+  return registros;
+}
+
+// Cargar el archivo de productos e historial (si existe) de forma asincrónica
+Future<void> cargarDatos() async {
+  df_productos = await cargarCSV('InventarioPruebas.csv');
+  df_historial = await cargarCSV('Historial.csv');
+}
+
+// Contar registros en el historial
+int contar_registros_historial() {
+  return df_historial.length;
+}
 
 
 
-Future<void> CrearInventario() async{
-  print("a");
+// Agregar un nuevo registro al historial de forma asincrónica
+Future<void> AgregarHistorial(String accion, String producto, int cantidad, String talla) async {
+
+  var horaAccion = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+  List<String> ultima_modificacion = ['$accion;$producto;$cantidad;$talla;$horaAccion;'];
+
+  // Guardar el nuevo registro al archivo
+  await InsertarFilaCSV('Historial.csv', ultima_modificacion);
 }
 
 
@@ -184,14 +260,14 @@ Future<void> GuardarArchivo(File archivo, BuildContext context) async {
 }
 
 Future<void> ActualizarProducto(
-  String nombre,
-  String colegio,
-  String talla,
-  String cantidad,
-  String precio,
-  String accion,
-  int cantidadAccion,
-) async {
+    String nombre,
+    String colegio,
+    String talla,
+    String cantidad,
+    String precio,
+    String accion,
+    int cantidadAccion,
+    ) async {
 
   final directory = await getApplicationDocumentsDirectory();
   final rutaArchivo = '${directory.path}/Inventario.csv';
@@ -209,30 +285,30 @@ Future<void> ActualizarProducto(
   int cantidadActual = int.parse(cantidad);
 
   for (int i = 0; i < filas.length; i++) {
-    // Acceder al elemento i de la lista filas
+
     String fila = filas[i][0] as String;
 
-    // Dividir la cadena, ignorando los corchetes
+
     List<String> elemento = fila.substring(0, fila.length).split(';');
 
     if (
-      RegExp(nombre ?? '').hasMatch(elemento[0]) &&
-      RegExp(colegio ?? '').hasMatch(elemento[1]) &&
-      RegExp(talla ?? '').hasMatch(elemento[2])
+    RegExp(nombre ?? '').hasMatch(elemento[0]) &&
+        RegExp(colegio ?? '').hasMatch(elemento[1]) &&
+        RegExp(talla ?? '').hasMatch(elemento[2])
     ) {
 
       switch (accion) {
         case "aumentar":
           cantidadActual+= cantidadAccion;
+          await AgregarHistorial("Aumentar", nombre, cantidadAccion, talla);
           break;
         case "disminuir":
           cantidadActual -= cantidadAccion;
-//           if (cantidadActual < 0) {
-//             cantidadActual = 0;
-//           }
+          await AgregarHistorial("Disminuir", nombre, cantidadAccion, talla);
           break;
         case "cambiarPrecio":
           elemento[4] = cantidadAccion.toString();
+          await AgregarHistorial("Cambio precio", nombre, cantidadAccion, talla);
           break;
         default:
           print("Acción inválida.");
@@ -299,7 +375,7 @@ Future<bool> InicioSesion(String nombreUsuario, String contrasena) async {
     String fila = filas[i][0] as String;
     List<String> elemento = fila.substring(0, fila.length).split(';');
 
-    if (elemento[0] == nombreUsuario && elemento[1] == contrasena) {
+    if (RegExp(nombreUsuario ?? '').hasMatch(elemento[0])) {
       return true;
     }
   }
@@ -345,4 +421,54 @@ Future<void> RegistrarUsuario(String nombreUsuario,String contrasena) async {
     print('Error al registrar el usuario: $e');
   }
 
+}
+
+
+
+Future<void> ReporteDiario(List<Map<String, dynamic>> historial) async {
+  final pdf = pw.Document();
+  final fechaActual = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+  // Filtrar el historial para obtener solo las transacciones del día actual
+  final transaccionesDia = historial.where((registro) => registro['fecha'].substring(0, 10) == fechaActual).toList();
+
+  // Crear la tabla con los datos de las transacciones
+  final List<List<String>> datosTabla = [];
+  datosTabla.add(['Producto', 'Cantidad', 'Talla', 'Fecha']); // Encabezados de la tabla
+  for (var transaccion in transaccionesDia) {
+    datosTabla.add([
+      transaccion['producto'],
+      transaccion['cantidad'],
+      transaccion['talla'],
+      transaccion['fecha'],
+    ]);
+  }
+
+  pdf.addPage(
+    pw.Page(
+      build: (pw.Context context) {
+        return pw.Column(
+          children: [
+            pw.Text('Reporte Diario - $fechaActual', style: pw.TextStyle(fontSize: 24)),
+            pw.SizedBox(height: 20),
+            pw.Table.fromTextArray(
+              context: context,
+              data: datosTabla,
+            ),
+          ],
+        );
+      },
+    ),
+  );
+
+  // Guardar el archivo PDF
+  final bytes = await pdf.save();
+  final directory = await getApplicationDocumentsDirectory();
+  final file = File('${directory.path}/reporte_diario.pdf');
+  await file.writeAsBytes(bytes);
+
+  // Descargar el archivo (esto puede variar dependiendo de la plataforma)
+  // Puedes usar la librería 'open_file' o 'share_plus' para abrir o compartir el archivo
+  // Ejemplo con 'open_file':
+  // await OpenFile.open(file.path);
 }
