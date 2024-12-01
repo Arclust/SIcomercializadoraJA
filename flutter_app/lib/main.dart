@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'funcs.dart' as funcs;
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
@@ -64,93 +65,111 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.blue.shade200, Colors.blue.shade800],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+    return Scaffold(
+      // AppBar con título y botón de retroceso
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          color: Colors.black,
+          onPressed: () {
+            SystemNavigator.pop();
+          },
+        ),
+        title: Text(
+          'Registro de usuario',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Registro de usuario',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+        ),
+      ),
+      // Cuerpo de la pantalla
+      body: BackgroundContainer(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Container(
+              // Agregamos el Container con fondo blanco
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10.0), // Opcional: para bordes redondeados
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 15),
+                  TextField(
+                    controller: _userController,
+                    decoration: InputDecoration(
+                      labelText: 'Usuario',
+                      labelStyle: TextStyle(fontSize: 16, color: Colors.grey),
+                      hintText: 'Ingrese su nombre de usuario',
+                      hintStyle: TextStyle(fontSize: 16, color: Colors.grey),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    TextField(
-                      controller: _userController, // Assign the controller
-                      decoration: InputDecoration(
-                        labelText: 'Usuario',
-                        hintText: 'Ingrese su nombre de usuario',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  const SizedBox(height: 15),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Contraseña',
+                      labelStyle: TextStyle(fontSize: 16, color: Colors.grey),
+                      hintText: 'Ingrese su contraseña',
+                      hintStyle: TextStyle(fontSize: 16, color: Colors.grey),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  TextField(
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Confirmar contraseña',
+                      labelStyle: TextStyle(fontSize: 16, color: Colors.grey),
+                      hintText: 'Confirme su contraseña',
+                      hintStyle: TextStyle(fontSize: 16, color: Colors.grey),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await funcs.RegistrarUsuario(
+                        _userController.text,
+                        _passwordController.text,
+                      );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MyHomePage(title: _userController.text),
                         ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12.0,
+                        horizontal: 30.0,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
                       ),
                     ),
-                    const SizedBox(height: 15),
-                    TextField(
-                      controller: _passwordController, // Assign the controller
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: 'Contraseña',
-                        hintText: 'Ingrese su contraseña',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
+                    child: const Text(
+                      'Registrar usuario',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
-                    const SizedBox(height: 15),
-                    TextField(
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: 'Confirmar contraseña',
-                        hintText: 'Ingrese su contraseña',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () async {
-                        await funcs.RegistrarUsuario(_userController.text, _passwordController.text);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => MyHomePage(title: _userController.text)),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 30.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: const Text(
-                        'Registrar usuario',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -159,6 +178,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
+
 
 
 
@@ -183,9 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(
         title: const Text('Iniciar Sesión'),
       ),
-      body: Container(
-        color: Colors.blue.shade200, // Fondo azul shade 200
-        padding: const EdgeInsets.all(16.0),
+      body: BackgroundContainer(
         child: Center(
           child: Card(
             shape: RoundedRectangleBorder(
@@ -265,7 +283,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0x00000000), // Color similar al de la barra superior en la imagen
+        backgroundColor: const Color(0x00FFFFFF), // Color similar al de la barra superior en la imagen
         title: const Text('¡Hola! ¿Que deseas hacer?'),
       ),
       body: Container(
@@ -293,7 +311,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   child: const Text(
                     "Agregar producto",
-                    style: TextStyle(fontSize: 18),
+                    style: TextStyle(fontSize: 18,color: Colors.black),
                   ),
                 ),
               ),
@@ -310,7 +328,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   child: const Text(
                     "Actualizar producto",
-                    style: TextStyle(fontSize: 18),
+                    style: TextStyle(fontSize: 18,color: Colors.black),
                   ),
                 ),
               ),
@@ -327,7 +345,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   child: const Text(
                     "Buscador de productos",
-                    style: TextStyle(fontSize: 18),
+                    style: TextStyle(fontSize: 18,color: Colors.black),
                   ),
                 ),
               ),
@@ -344,7 +362,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   child: const Text(
                     "Generar reporte",
-                    style: TextStyle(fontSize: 18),
+                    style: TextStyle(fontSize: 18,color: Colors.black),
                   ),
                 ),
               ),
@@ -362,7 +380,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                   child: const Text(
                     "Historial de movimientos",
-                    style: TextStyle(fontSize: 18),
+                    style: TextStyle(fontSize: 18, color: Colors.black),
                   ),
                 ),
               ),
@@ -500,6 +518,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Agregar Producto'),
+        backgroundColor: const Color(0x00FFFFFF),
       ),
       body: BackgroundContainer(
         child: SingleChildScrollView( // Permite desplazarse si el contenido es extenso
@@ -567,8 +586,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 Center( // Centra el botón
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                     ),
                     onPressed: () async {
