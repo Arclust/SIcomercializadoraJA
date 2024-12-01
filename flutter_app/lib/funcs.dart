@@ -446,8 +446,6 @@ Future<void> RegistrarUsuario(String nombreUsuario,String contrasena) async {
 
 }
 
-
-
 Future<void> ReporteDiario(List<Map<String, dynamic>> historial) async {
   final pdf = pw.Document();
   final fechaActual = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -456,7 +454,7 @@ Future<void> ReporteDiario(List<Map<String, dynamic>> historial) async {
   final transaccionesDia = historial.where((registro) => registro['fecha'].substring(0, 10) == fechaActual).toList();
 
   // Crear un mapa para almacenar el total por producto
-  final Map<String, int> resumenPorProducto = {};
+  final Map<String, Map<String, int>> resumenPorProducto = {};
 
   // Procesar cada transacción
   for (var transaccion in transaccionesDia) {
@@ -464,21 +462,58 @@ Future<void> ReporteDiario(List<Map<String, dynamic>> historial) async {
     final producto = transaccion['producto'];
     final cantidad = int.parse(transaccion['cantidad']);
 
+    // Si el producto no existe, inicializar las variables
+    if (!resumenPorProducto.containsKey(producto)) {
+      resumenPorProducto[producto] = {
+        'totalAumentado': 0,
+        'totalDisminuido': 0,
+        'recaudacion': 0,
+      };
+    }
+
+    // Actualizar el resumen por producto
     if (tipoAccion == 'Disminuir') {
-      resumenPorProducto[producto] = (resumenPorProducto[producto] ?? 0) - cantidad;
+      resumenPorProducto[producto]!['totalDisminuido'] = (resumenPorProducto[producto]!['totalDisminuido'] ?? 0) + cantidad;
     } else if (tipoAccion == 'Aumentar') {
-      resumenPorProducto[producto] = (resumenPorProducto[producto] ?? 0) + cantidad;
+      resumenPorProducto[producto]!['totalAumentado'] = (resumenPorProducto[producto]!['totalAumentado'] ?? 0) + cantidad;
     }
   }
 
   // Crear los datos de la tabla para el PDF
   final List<List<String>> datosTabla = [
-    ['Producto', 'Total'], // Encabezados
+    ['Producto', 'Total Aumentado', 'Total Disminuido', 'Recaudación del Día'], // Encabezados
   ];
 
-  resumenPorProducto.forEach((producto, total) {
-    datosTabla.add([producto, total.toString()]);
-  });
+  // Usar un bucle tradicional para manejar operaciones asíncronas
+  for (var producto in resumenPorProducto.keys) {
+    final valores = resumenPorProducto[producto]!;
+
+    // Llamar a la función asíncrona para obtener el precio del producto
+    final filtrado = await FiltrarProductos(
+      producto,
+      null,
+      null,
+      const RangeValues(0, double.infinity),
+      const RangeValues(0, double.infinity),
+    );
+
+    String filtradoPost = filtrado[0][0] as String;
+    List<String> elemento = filtradoPost.split(';');
+    final precio = double.tryParse(elemento[4]) ?? 0.0;
+
+    final totalAumentado = valores['totalAumentado'] ?? 0;
+    final totalDisminuido = valores['totalDisminuido'] ?? 0;
+
+    // Calcular la recaudación como el precio multiplicado por la cantidad disminuida
+    final recaudacion = precio * totalDisminuido;
+
+    datosTabla.add([
+      producto,
+      totalAumentado.toString(),
+      totalDisminuido.toString(),
+      recaudacion.toStringAsFixed(2), // Formatear a dos decimales
+    ]);
+  }
 
   // Añadir contenido al PDF
   pdf.addPage(
@@ -504,14 +539,9 @@ Future<void> ReporteDiario(List<Map<String, dynamic>> historial) async {
     ),
   );
 
-
   // Guardar el archivo PDF
   final bytes = await pdf.save();
   final directory = await getApplicationDocumentsDirectory();
   final file = File('${directory.path}/reporte_diario_transacciones$fechaActual.pdf');
   await file.writeAsBytes(bytes);
-
-  // Opcional: abrir o compartir el archivo
-  // Ejemplo con 'open_file':
-  // await OpenFile.open(file.path);
 }
