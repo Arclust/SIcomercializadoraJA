@@ -72,48 +72,59 @@ Future<void> cargarDatos() async {
   df_historial = await cargarCSV('Historial.csv');
 }
 
-// Contar registros en el historial
-int contar_registros_historial() {
-  return df_historial.length;
-}
 
-Future<void> verificarYEliminarRegistros(String filePath) async {
+// Función para contar los registros en el archivo CSV
+Future<int> contarRegistros() async {
+  final directory = await getApplicationDocumentsDirectory();
+  final filePath = '${directory.path}/Historial.csv';
   final file = File(filePath);
 
   // Verificar si el archivo existe
-  if (!await file.exists()) {
-    print('El archivo $filePath no existe.');
-    return;
-  }
+  if (await file.exists()) {
+    // Leer todas las líneas del archivo
+    final List<String> registros = await file.readAsLines();
 
-  // Leer el contenido del archivo CSV
-  final csvData = await file.readAsString();
-  List<List<dynamic>> rowsAsListOfValues =
-      const CsvToListConverter(fieldDelimiter: ';', eol: '\n').convert(csvData);
-
-  // Verificar si hay más de 100 registros (excluyendo la fila de encabezado)
-  if (rowsAsListOfValues.length > 101) {
-    print('Más de 100 registros encontrados. Eliminando el más antiguo...');
-    
-    // Eliminar el registro más antiguo (el primero después de los encabezados)
-    rowsAsListOfValues.removeAt(1);
-
-    // Convertir de nuevo los datos a CSV
-    String updatedCsvData =
-        const ListToCsvConverter(fieldDelimiter: ';').convert(rowsAsListOfValues);
-
-    // Sobrescribir el archivo con los nuevos datos
-    await file.writeAsString(updatedCsvData);
-
-    print('Registro más antiguo eliminado.');
+    // Contar la cantidad de registros
+    return registros.length;
   } else {
-    print('No hay más de 100 registros. No se eliminó ningún registro.');
+    print('El archivo no existe.');
+    return 0; // Si no existe, devuelve 0
   }
 }
+
+
+// Función para eliminar el registro más antiguo y reordenar el CSV
+Future<void> eliminarRegistroMasAntiguo() async {
+  final directory = await getApplicationDocumentsDirectory();
+  final filePath = '${directory.path}/Historial.csv';
+  final file = File(filePath);
+
+  // Verificar si el archivo existe
+  if (await file.exists()) {
+    // Leer todas las líneas del archivo
+    final List<String> registros = await file.readAsLines();
+
+    // Verificar si hay registros para eliminar
+    if (registros.isNotEmpty) {
+      // Eliminar el registro más antiguo (primera línea)
+      registros.removeAt(0);
+
+      // Sobrescribir el archivo con los registros restantes
+      await file.writeAsString(registros.join('\n'));
+      print('El registro más antiguo fue eliminado y el archivo actualizado.');
+    } else {
+      print('El archivo está vacío. No hay registros para eliminar.');
+    }
+  } else {
+    print('El archivo no existe.');
+  }
+}
+
 // Agregar un nuevo registro al historial de forma asincrónica
 Future<void> AgregarHistorial(String accion, String producto, int cantidad, String talla) async {
-
-  await verificarYEliminarRegistros('Historial.csv');
+  
+  if (await contarRegistros() > 20){
+  await eliminarRegistroMasAntiguo();}
   var horaAccion = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
   List<String> ultima_modificacion = ['$accion;$producto;$cantidad;$talla;$horaAccion;'];
 
