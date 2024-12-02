@@ -204,96 +204,109 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Iniciar Sesión'),
-        backgroundColor: const Color(0x00fffff),
+        title: const Text(
+          'Iniciar Sesión',
+          style: TextStyle(color: Colors.black),
+        ),
+        backgroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.black),
+        elevation: 0,
       ),
-      body: BackgroundContainer(
-        child: Center(
-          child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12.0),
-            ),
-            elevation: 4.0,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: _userController,
-                    cursorColor: Colors.black,
-                    decoration: InputDecoration(
-                      labelText: 'Usuario',
-                      labelStyle: const TextStyle(color: Colors.grey),
-                      hintText: 'Ingrese su nombre de usuario',
-                      hintStyle: const TextStyle(color: Colors.grey),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: const BorderSide(
-                          color: Colors.grey, // Color del borde cuando no está enfocado
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: const BorderSide(
-                          color: Colors.blue, // Color del borde cuando está enfocado
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  TextField(
-                    controller: _passwordController, // Assign the controller
-                    cursorColor: Colors.black,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Contraseña',
-                      labelStyle: const TextStyle(color: Colors.grey),
-                      hintText: 'Ingrese su contraseña',
-                      hintStyle: const TextStyle(color: Colors.grey),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: const BorderSide(
-                          color: Colors.grey, // Color del borde cuando no está enfocado
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: const BorderSide(
-                          color: Colors.blue, // Color del borde cuando está enfocado
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20.0),
-                  ElevatedButton(
-                    onPressed: () async {
-                      bool usuarioCoincide = await funcs.InicioSesion(
-                        _userController.text,
-                        _passwordController.text,
-                      );
-                      if (usuarioCoincide) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => MyHomePage(
-                              title: _userController.text,
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus(); // Cierra el teclado al tocar fuera de los campos
+        },
+        child: BackgroundContainer(
+          child: Center(
+            child: SingleChildScrollView( // Permite desplazar si hay mucho contenido
+              child: Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                elevation: 4.0,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: _userController,
+                        cursorColor: Colors.black,
+                        decoration: InputDecoration(
+                          labelText: 'Usuario',
+                          labelStyle: const TextStyle(color: Colors.grey),
+                          hintText: 'Ingrese su nombre de usuario',
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Colors.grey,
                             ),
                           ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue, // Color de fondo del botón
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 40.0,
-                        vertical: 12.0,
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                    child: const Text('Iniciar Sesión'),
+                      const SizedBox(height: 16.0),
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        cursorColor: Colors.black,
+                        decoration: InputDecoration(
+                          labelText: 'Contraseña',
+                          labelStyle: const TextStyle(color: Colors.grey),
+                          hintText: 'Ingrese su contraseña',
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Colors.grey,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20.0),
+                      ElevatedButton(
+                        onPressed: () async {
+                          bool usuarioCoincide = await funcs.InicioSesion(
+                            _userController.text,
+                            _passwordController.text,
+                          );
+                          if (usuarioCoincide) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MyHomePage(
+                                  title: _userController.text,
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 40.0,
+                            vertical: 12.0,
+                          ),
+                        ),
+                        child: const Text('Iniciar Sesión'),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -302,6 +315,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
 
 
 
@@ -483,7 +497,9 @@ Widget _buildMenuButton(String text, VoidCallback onPressed) {
 
 class MovementsScreen extends StatefulWidget {
   final List<Map<String, dynamic>> movimientos;
-  const MovementsScreen({super.key,
+
+  const MovementsScreen({
+    super.key,
     required this.movimientos,
   });
 
@@ -492,17 +508,19 @@ class MovementsScreen extends StatefulWidget {
 }
 
 class _MovementsScreenState extends State<MovementsScreen> {
-
   @override
   Widget build(BuildContext context) {
+    // Invertimos la lista para mostrar los movimientos más recientes primero
+    final movimientosInvertidos = widget.movimientos.reversed.toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Historial de Movimientos"),
       ),
       body: ListView.builder(
-        itemCount: widget.movimientos.length,
+        itemCount: movimientosInvertidos.length,
         itemBuilder: (context, index) {
-          final movimiento = widget.movimientos[index];
+          final movimiento = movimientosInvertidos[index];
           final color = obtenerColor(movimiento["accion"]);
 
           return Card(
@@ -555,6 +573,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
     }
   }
 }
+
 
 // PANTALLA AGREGAR PRODUCTOS
 
@@ -1219,78 +1238,82 @@ class _SearchScreenState extends State<SearchScreen> {
 
 //PANTALLA CREACION DE REPORTES
 
-
 class ReportScreen extends StatelessWidget {
   const ReportScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFB3E5FC), // Fondo similar al de la imagen
-      body: Center(
-        child: Container(
-          width: 300,
-          height: 500,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Text(
-                  'Reporte creado',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black54,
+      appBar: AppBar(
+        title: const Text('Reporte Diario'),
+        backgroundColor: Colors.white,
+      ),
+      body: BackgroundContainer(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
+              width: 300,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(height: 20), // Espacio para el contenido vacío
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: ElevatedButton(
-                  onPressed: () async{
-                    final historial = await funcs.LeerHistorial();
-                    await funcs.ReporteDiario(historial);
-
-                    final fechaActual = DateFormat('yyyy-MM-dd').format(DateTime.now());
-
-                    // Obtener el archivo PDF generado
-                    final directory = await getApplicationDocumentsDirectory();
-                    final file = File('${directory.path}/reporte_diario_transacciones$fechaActual.pdf');
-                    funcs.GuardarArchivo(file, context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00B0FF), // Color del botón
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Reporte creado',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   ),
-                  child: const Text(
-                    'Descargar',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final historial = await funcs.LeerHistorial();
+                      await funcs.ReporteDiario(historial);
+
+                      final fechaActual = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+                      // Obtener el archivo PDF generado
+                      final directory = await getApplicationDocumentsDirectory();
+                      final file = File('${directory.path}/reporte_diario_transacciones$fechaActual.pdf');
+                      funcs.GuardarArchivo(file, context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue, // Color del botón
+                      foregroundColor: Colors.white, // Color del texto
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    ),
+                    child: const Text(
+                      'Descargar',
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 }
+
 
 
 // PANTALLA DE SOLICITUD DE QR
@@ -1320,21 +1343,37 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFB3E5FC),
-      body: Column(
-        children: [
-          Expanded(
-            flex: 4,
-            child: QRView(
-              key: qrKey,
-              onQRViewCreated: _onQRViewCreated,
+      appBar: AppBar(
+        title: const Text('Escanear QR'),
+        backgroundColor: Colors.white,
+      ),
+      body: BackgroundContainer(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: Container(
+                width: 250,
+                height: 250,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.blue,
+                    width: 4,
+                  ),
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: QRView(
+                  key: qrKey,
+                  onQRViewCreated: _onQRViewCreated,
+                ),
+              ),
             ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Center(
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Text(
                 qrResult,
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -1342,24 +1381,40 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
                 ),
               ),
             ),
-          ),
-          _backButton(),
-          const SizedBox(height: 20),
-
-        ],
-      ),
-    );
-  }
-
-  Widget _backButton() {
-    return Positioned(
-      top: 20,
-      left: 20,
-      child: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () {
-          Navigator.pop(context);
-        },
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                  ),
+                  child: const Text('Volver'),
+                ),
+                const SizedBox(width: 16), // Espacio entre los botones
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const RequestProductScreen()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                  ),
+                  child: const Text('Ingresar Datos Manuales'),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1373,29 +1428,20 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
           final elemento = qrResult.split('-');
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ModifyProductScreen(nombre: elemento[0], colegio: elemento[1], talla: elemento[2], cantidad: elemento[3], precio: elemento[4])),
+            MaterialPageRoute(
+              builder: (context) => ModifyProductScreen(
+                nombre: elemento[0],
+                colegio: elemento[1],
+                talla: elemento[2],
+                cantidad: elemento[3],
+                precio: elemento[4],
+              ),
+            ),
           );
-          // Pause the camera after navigation
           controller.pauseCamera();
         });
       }
     });
-  }
-
-  void _showDataDialog(BuildContext context, String data) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Datos del código QR'),
-        content: Text(data),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -1404,6 +1450,9 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
     super.dispose();
   }
 }
+
+
+
 
 
 // PANTALLA DE SOLICITAR DATOS MANUALES
@@ -1420,67 +1469,162 @@ class _RequestProductScreenState extends State<RequestProductScreen> {
   String? selectedCollege;
   String? selectedSize;
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFB3E5FC), // Fondo similar al de la imagen
+      appBar: AppBar(
+        title: const Text('Ingresar Datos Manuales'),
+        backgroundColor: Colors.white,
+      ),
       body: BackgroundContainer(
-        child: Column(
-          children: [
-            TextField(
-              onChanged: (value) {
-                setState(() {
-                  selectedName = value;
-                });
-              },
-              decoration: const InputDecoration(labelText: 'Nombre'),
-            ),
-            TextField(
-              onChanged: (value) {
-                setState(() {
-                  selectedCollege = value;
-                });
-              },
-              decoration: const InputDecoration(labelText: 'Colegio'),
-            ),
-            DropdownButton<String>(
-              value: selectedSize,
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedSize = newValue;
-                });
-              },
-              items: <String>['','S', 'M', 'L', 'XL'].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              hint: const Text('Talla'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                // Aquí se aplicaría la lógica para filtrar los productos
-                final aModificar = await funcs.FiltrarProductos(selectedName, selectedCollege, selectedSize,const RangeValues(0, 500), const RangeValues(0, 50000));
-                String fila = aModificar[0][0] as String;
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
+              padding: const EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    cursorColor: Colors.blue, // Cambia el color del cursor
+                    onChanged: (value) {
+                      setState(() {
+                        selectedName = value;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre',
+                      labelStyle: TextStyle(color:Colors.grey),
+                      filled: true,
+                      fillColor: Colors.white,
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16.0),
+                  TextField(
+                    cursorColor: Colors.blue, // Cambia el color del cursor
+                    onChanged: (value) {
+                      setState(() {
+                        selectedCollege = value;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Colegio',
+                      labelStyle: TextStyle(color:Colors.grey),
+                      filled: true,
+                      fillColor: Colors.white,
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16.0),
+                  DropdownButtonFormField<String>(
+                    value: selectedSize,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedSize = newValue;
+                      });
+                    },
+                    items: <String>['', 'S', 'M', 'L', 'XL']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    decoration: const InputDecoration(
+                      labelText: 'Talla',
+                      labelStyle: TextStyle(color:Colors.grey),
+                      filled: true,
+                      fillColor: Colors.white,
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue),
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                    ),
+                    dropdownColor: Colors.white,
+                  ),
 
-                // Dividir la cadena, ignorando los corchetes
-                List<String> elemento = fila.substring(0, fila.length).split(';');
-                print(elemento[0]);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ModifyProductScreen(nombre: elemento[0], colegio: elemento[1], talla: elemento[2], cantidad: elemento[3], precio: elemento[4])),
-                );
-              },
-              child: const Text('Modificar'),
+                  const SizedBox(height: 20.0),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final aModificar = await funcs.FiltrarProductos(
+                          selectedName,
+                          selectedCollege,
+                          selectedSize,
+                          const RangeValues(0, 500),
+                          const RangeValues(0, 50000),
+                        );
+                        String fila = aModificar[0][0] as String;
+
+                        List<String> elemento =
+                        fila.substring(0, fila.length).split(';');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ModifyProductScreen(
+                              nombre: elemento[0],
+                              colegio: elemento[1],
+                              talla: elemento[2],
+                              cantidad: elemento[3],
+                              precio: elemento[4],
+                            ),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        textStyle: TextStyle(fontSize:20),
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 40,
+                          vertical: 15,
+                        ),
+                      ),
+                      child: const Text('Modificar'),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
+
+
 
 
 //PANTALLA MODIFICAR PRODUCTO
@@ -1511,20 +1655,33 @@ class _ModifyProductScreenState extends State<ModifyProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Modificar Producto'),
+        backgroundColor: Colors.white,
       ),
       body: BackgroundContainer(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // Centra los botones verticalmente
+          mainAxisAlignment: MainAxisAlignment.center, // Centrar los botones
           children: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(355, 70), // Ancho y alto
+                backgroundColor: Colors.white, // Fondo blanco
+                foregroundColor: Colors.black, // Texto negro
+                textStyle: const TextStyle(fontSize: 18), // Tamaño de fuente
               ),
               onPressed: () async {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => QuantityModifyProductScreen(nombre: widget.nombre, colegio: widget.colegio, talla: widget.talla, cantidad: widget.cantidad, precio: widget.precio, accion: 'aumentar')),
+                  MaterialPageRoute(
+                    builder: (context) => QuantityModifyProductScreen(
+                      nombre: widget.nombre,
+                      colegio: widget.colegio,
+                      talla: widget.talla,
+                      cantidad: widget.cantidad,
+                      precio: widget.precio,
+                      accion: 'aumentar',
+                    ),
+                  ),
                 );
               },
               child: const Text('Aumentar cantidad'),
@@ -1533,11 +1690,23 @@ class _ModifyProductScreenState extends State<ModifyProductScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(355, 70), // Ancho y alto
+                backgroundColor: Colors.white, // Fondo blanco
+                foregroundColor: Colors.black, // Texto negro
+                textStyle: const TextStyle(fontSize: 18), // Tamaño de fuente
               ),
               onPressed: () async {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => QuantityModifyProductScreen(nombre: widget.nombre, colegio: widget.colegio, talla: widget.talla, cantidad: widget.cantidad, precio: widget.precio, accion: 'disminuir')),
+                  MaterialPageRoute(
+                    builder: (context) => QuantityModifyProductScreen(
+                      nombre: widget.nombre,
+                      colegio: widget.colegio,
+                      talla: widget.talla,
+                      cantidad: widget.cantidad,
+                      precio: widget.precio,
+                      accion: 'disminuir',
+                    ),
+                  ),
                 );
               },
               child: const Text('Disminuir cantidad'),
@@ -1546,11 +1715,23 @@ class _ModifyProductScreenState extends State<ModifyProductScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(355, 70), // Ancho y alto
+                backgroundColor: Colors.white, // Fondo blanco
+                foregroundColor: Colors.black, // Texto negro
+                textStyle: const TextStyle(fontSize: 18), // Tamaño de fuente
               ),
               onPressed: () async {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => QuantityModifyProductScreen(nombre: widget.nombre, colegio: widget.colegio, talla: widget.talla, cantidad: widget.cantidad, precio: widget.precio, accion: 'cambiarPrecio')),
+                  MaterialPageRoute(
+                    builder: (context) => QuantityModifyProductScreen(
+                      nombre: widget.nombre,
+                      colegio: widget.colegio,
+                      talla: widget.talla,
+                      cantidad: widget.cantidad,
+                      precio: widget.precio,
+                      accion: 'cambiarPrecio',
+                    ),
+                  ),
                 );
               },
               child: const Text('Cambiar precio'),
@@ -1561,6 +1742,8 @@ class _ModifyProductScreenState extends State<ModifyProductScreen> {
     );
   }
 }
+
+
 
 
 
@@ -1586,58 +1769,110 @@ class QuantityModifyProductScreen extends StatefulWidget {
   });
 
   @override
-  _QuantityModifyProductScreenState createState() => _QuantityModifyProductScreenState();
+  _QuantityModifyProductScreenState createState() =>
+      _QuantityModifyProductScreenState();
 }
 
-class _QuantityModifyProductScreenState extends State<QuantityModifyProductScreen> {
+class _QuantityModifyProductScreenState
+    extends State<QuantityModifyProductScreen> {
   late String selectedQuantity;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text(
+          'Modificar Producto',
+          style: TextStyle(color: Colors.black),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0, // Opcional: elimina la sombra del AppBar
+        iconTheme: const IconThemeData(color: Colors.black), // Íconos en negro
       ),
       body: BackgroundContainer(
-        child: Container(
-          width: 355,
-          height: 70, padding: const EdgeInsets.all(20.0),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            // ... other widgets
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               TextField(
+                cursorColor: Colors.black, // Cursor negro
                 onChanged: (value) {
                   setState(() {
                     selectedQuantity = value;
                   });
                 },
+                keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  filled: true, // Activa el fondo relleno
-                  fillColor: Colors.white, // Color de fondo
+                  filled: true,
+                  fillColor: Colors.white,
                   labelText: widget.accion == 'aumentar'
                       ? 'Ingrese cuanto desea aumentar'
                       : widget.accion == 'disminuir'
-                      ? 'Ingrese cuanto desea disminuir' // Si es "aumentar" o "disminuir", muestra "Cantidad"
+                      ? 'Ingrese cuanto desea disminuir'
                       : widget.accion == 'cambiarPrecio'
-                      ? 'Ingrese nuevo precio' // Si es "cambiarprecio", muestra "Papa"
-                      : '', // Si no coincide con ninguna opción, muestra una cadena vacía
+                      ? 'Ingrese nuevo precio'
+                      : '',
+                  labelStyle: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 16,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.blue),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
                 ),
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (widget.accion=='aumentar'){
-                    await funcs.ActualizarProducto(widget.nombre, widget.colegio, widget.talla, widget.cantidad, widget.precio,'aumentar',int.parse(selectedQuantity));
-                  }else if(widget.accion=='disminuir'){
-                    await funcs.ActualizarProducto(widget.nombre, widget.colegio, widget.talla, widget.cantidad, widget.precio,'disminuir',int.parse(selectedQuantity));
-                  }else if(widget.accion=='cambiarPrecio'){
-                    await funcs.ActualizarProducto(widget.nombre, widget.colegio, widget.talla, widget.cantidad, widget.precio,'cambiarPrecio',int.parse(selectedQuantity));
-                  }
-                  Navigator.pop(context);
-                },
-                child: const Text('Actualizar'),
+              const SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
 
+                    minimumSize: const Size(200, 50),
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    textStyle: const TextStyle(fontSize: 16),
+                  ),
+                  onPressed: () async {
+                    if (widget.accion == 'aumentar') {
+                      await funcs.ActualizarProducto(
+                          widget.nombre,
+                          widget.colegio,
+                          widget.talla,
+                          widget.cantidad,
+                          widget.precio,
+                          'aumentar',
+                          int.parse(selectedQuantity));
+                    } else if (widget.accion == 'disminuir') {
+                      await funcs.ActualizarProducto(
+                          widget.nombre,
+                          widget.colegio,
+                          widget.talla,
+                          widget.cantidad,
+                          widget.precio,
+                          'disminuir',
+                          int.parse(selectedQuantity));
+                    } else if (widget.accion == 'cambiarPrecio') {
+                      await funcs.ActualizarProducto(
+                          widget.nombre,
+                          widget.colegio,
+                          widget.talla,
+                          widget.cantidad,
+                          widget.precio,
+                          'cambiarPrecio',
+                          int.parse(selectedQuantity));
+                    }
+                    Navigator.pop(context);
+                  },
+
+                  child: const Text('Actualizar'),
+
+                ),
               ),
             ],
           ),
@@ -1646,6 +1881,10 @@ class _QuantityModifyProductScreenState extends State<QuantityModifyProductScree
     );
   }
 }
+
+
+
+//AÑADIR FONDO
 class BackgroundContainer extends StatelessWidget {
   final Widget child;
 
