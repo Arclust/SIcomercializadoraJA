@@ -77,11 +77,43 @@ int contar_registros_historial() {
   return df_historial.length;
 }
 
+Future<void> verificarYEliminarRegistros(String filePath) async {
+  final file = File(filePath);
 
+  // Verificar si el archivo existe
+  if (!await file.exists()) {
+    print('El archivo $filePath no existe.');
+    return;
+  }
 
+  // Leer el contenido del archivo CSV
+  final csvData = await file.readAsString();
+  List<List<dynamic>> rowsAsListOfValues =
+      const CsvToListConverter(fieldDelimiter: ';', eol: '\n').convert(csvData);
+
+  // Verificar si hay más de 100 registros (excluyendo la fila de encabezado)
+  if (rowsAsListOfValues.length > 101) {
+    print('Más de 100 registros encontrados. Eliminando el más antiguo...');
+    
+    // Eliminar el registro más antiguo (el primero después de los encabezados)
+    rowsAsListOfValues.removeAt(1);
+
+    // Convertir de nuevo los datos a CSV
+    String updatedCsvData =
+        const ListToCsvConverter(fieldDelimiter: ';').convert(rowsAsListOfValues);
+
+    // Sobrescribir el archivo con los nuevos datos
+    await file.writeAsString(updatedCsvData);
+
+    print('Registro más antiguo eliminado.');
+  } else {
+    print('No hay más de 100 registros. No se eliminó ningún registro.');
+  }
+}
 // Agregar un nuevo registro al historial de forma asincrónica
 Future<void> AgregarHistorial(String accion, String producto, int cantidad, String talla) async {
 
+  await verificarYEliminarRegistros('Historial.csv');
   var horaAccion = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
   List<String> ultima_modificacion = ['$accion;$producto;$cantidad;$talla;$horaAccion;'];
 
