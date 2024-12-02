@@ -202,6 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Iniciar Sesión'),
+        backgroundColor:  const Color(0x00fffff)
       ),
       body: BackgroundContainer(
         child: Center(
@@ -219,7 +220,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _userController,
                     decoration: const InputDecoration(
                       labelText: 'Usuario',
+                      labelStyle: TextStyle(color: Colors.grey),
                       hintText: 'Ingrese su nombre de usuario',
+                      hintStyle: TextStyle(color: Colors.grey)
                     ),
                   ),
                   const SizedBox(height: 16.0),
@@ -228,7 +231,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     obscureText: true,
                     decoration: const InputDecoration(
                       labelText: 'Contraseña',
+                      labelStyle: TextStyle(color:Colors.grey),
                       hintText: 'Ingrese su contraseña',
+                      hintStyle: TextStyle(color:Colors.grey)
                     ),
                   ),
                   const SizedBox(height: 20.0),
@@ -245,6 +250,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue, // Color de fondo del botón
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
                     ),
                     child: const Text('Iniciar Sesión'),
@@ -630,7 +636,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
 
 //PANTALLA DE DETALLES PRODUCTO
-
 class ProductDetailsScreen extends StatefulWidget {
   final String nombre;
   final String colegio;
@@ -660,39 +665,65 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detalles del Producto'),
+        backgroundColor: const Color(0x000fff),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Nombre: ${widget.nombre}'),
-            Text('Colegio: ${widget.colegio}'),
-            Text('Talla: ${widget.talla}'),
-            Text('Cantidad: ${widget.cantidad}'),
-            Text('Precio: ${widget.precio}'),
-            const SizedBox(height: 16.0), // Add some spacing,
-            Image.file(imageFile),
-            const SizedBox(height: 16.0), // Add some spacing between image and button
-            ElevatedButton(
-              onPressed: () async {
-                await funcs.GuardarArchivo(imageFile, context);
-              },
-              child: const Text('Descargar QR'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                await funcs.EliminarProducto(widget.nombre, widget.colegio, widget.talla);
-                Navigator.pop(context);
-              },
-              child: const Text('Eliminar producto'),
-            ),
-          ],
+      body: BackgroundContainer(
+        child: Center(// Centra todo el contenido verticalmente
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Ajusta el tamaño vertical al contenido
+            crossAxisAlignment: CrossAxisAlignment.center, // Centra horizontalmente
+            children: [
+              Text(
+                'Nombre: ${widget.nombre}',
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                'Colegio: ${widget.colegio}',
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                'Talla: ${widget.talla}',
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                'Cantidad: ${widget.cantidad}',
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                'Precio: ${widget.precio}',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16.0),
+              Image.file(imageFile),
+              const SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: () async {
+                  await funcs.GuardarArchivo(imageFile, context);
+                },
+                child: const Text('Descargar QR'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await funcs.EliminarProducto(
+                    widget.nombre,
+                    widget.colegio,
+                    widget.talla,
+                  );
+                  Navigator.pop(context);
+                },
+                child: const Text('Eliminar producto'),
+              ),
+            ],
+          ),
         ),
       ),
+    )
     );
   }
 }
+
 
 
 //PANTALLA BUSQUEDA CON FILTROS
