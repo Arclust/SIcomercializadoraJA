@@ -103,6 +103,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 15),
                   TextField(
                     controller: _userController,
+                    cursorColor: Colors.black,
                     decoration: InputDecoration(
                       labelText: 'Usuario',
                       labelStyle: TextStyle(fontSize: 16, color: Colors.grey),
@@ -116,6 +117,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 15),
                   TextField(
                     controller: _passwordController,
+                    cursorColor: Colors.black,
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Contraseña',
@@ -197,12 +199,13 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _userController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Iniciar Sesión'),
-        backgroundColor:  const Color(0x00fffff)
+        backgroundColor: const Color(0x00fffff),
       ),
       body: BackgroundContainer(
         child: Center(
@@ -218,40 +221,75 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   TextField(
                     controller: _userController,
-                    decoration: const InputDecoration(
+                    cursorColor: Colors.black,
+                    decoration: InputDecoration(
                       labelText: 'Usuario',
-                      labelStyle: TextStyle(color: Colors.grey),
+                      labelStyle: const TextStyle(color: Colors.grey),
                       hintText: 'Ingrese su nombre de usuario',
-                      hintStyle: TextStyle(color: Colors.grey)
+                      hintStyle: const TextStyle(color: Colors.grey),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(
+                          color: Colors.grey, // Color del borde cuando no está enfocado
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(
+                          color: Colors.blue, // Color del borde cuando está enfocado
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16.0),
                   TextField(
                     controller: _passwordController, // Assign the controller
+                    cursorColor: Colors.black,
                     obscureText: true,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Contraseña',
-                      labelStyle: TextStyle(color:Colors.grey),
+                      labelStyle: const TextStyle(color: Colors.grey),
                       hintText: 'Ingrese su contraseña',
-                      hintStyle: TextStyle(color:Colors.grey)
+                      hintStyle: const TextStyle(color: Colors.grey),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(
+                          color: Colors.grey, // Color del borde cuando no está enfocado
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(
+                          color: Colors.blue, // Color del borde cuando está enfocado
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20.0),
                   ElevatedButton(
                     onPressed: () async {
-                      bool usuarioCoincide = await funcs.InicioSesion(_userController.text, _passwordController.text);
-                      if (usuarioCoincide){
+                      bool usuarioCoincide = await funcs.InicioSesion(
+                        _userController.text,
+                        _passwordController.text,
+                      );
+                      if (usuarioCoincide) {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => MyHomePage(title: _userController.text,)),
+                          MaterialPageRoute(
+                            builder: (context) => MyHomePage(
+                              title: _userController.text,
+                            ),
+                          ),
                         );
                       }
-
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue, // Color de fondo del botón
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 40.0,
+                        vertical: 12.0,
+                      ),
                     ),
                     child: const Text('Iniciar Sesión'),
                   ),
@@ -264,6 +302,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
 
 
 
@@ -289,7 +328,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0x00FFFFFF), // Color similar al de la barra superior en la imagen
+        backgroundColor: const Color(0xFFFFFFFF), // Color similar al de la barra superior en la imagen
         title: const Text('¡Hola! ¿Que deseas hacer?'),
       ),
       body: Container(
@@ -315,6 +354,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(builder: (context) => const AddProductScreen()),
                     );
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white, // Fondo blanco
+                  ),
                   child: const Text(
                     "Agregar producto",
                     style: TextStyle(fontSize: 18,color: Colors.black),
@@ -332,6 +374,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(builder: (context) => const ScanQRScreen()),
                     );
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white, // Fondo blanco
+                  ),
                   child: const Text(
                     "Actualizar producto",
                     style: TextStyle(fontSize: 18,color: Colors.black),
@@ -349,6 +394,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(builder: (context) => const SearchScreen()),
                     );
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white, // Fondo blanco
+                  ),
                   child: const Text(
                     "Buscador de productos",
                     style: TextStyle(fontSize: 18,color: Colors.black),
@@ -366,6 +414,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(builder: (context) => const ReportScreen()),
                     );
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white, // Fondo blanco
+                  ),
                   child: const Text(
                     "Generar reporte",
                     style: TextStyle(fontSize: 18,color: Colors.black),
@@ -384,6 +435,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(builder: (context) => MovementsScreen(movimientos: movements)),
                     );
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white, // Fondo blanco
+                  ),
                   child: const Text(
                     "Historial de movimientos",
                     style: TextStyle(fontSize: 18, color: Colors.black),
@@ -524,11 +578,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Agregar Producto'),
-        backgroundColor: const Color(0x00FFFFFF),
+        backgroundColor: const Color(0xFFFFFFFF), // Fondo blanco
       ),
       body: BackgroundContainer(
-        child: SingleChildScrollView( // Permite desplazarse si el contenido es extenso
-          padding: const EdgeInsets.all(16.0), // Agrega un margen alrededor del contenido
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
             child: Column(
@@ -536,7 +590,21 @@ class _AddProductScreenState extends State<AddProductScreen> {
               children: [
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Tipo de producto', filled: true, fillColor: Colors.white, ),
+                  cursorColor: Colors.black,
+                  decoration: InputDecoration(
+                    labelText: 'Tipo de producto',
+                    labelStyle: TextStyle( color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.grey), // Borde gris cuando no está enfocado
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.blue), // Borde azul cuando está enfocado
+                    ),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '¡Falta el nombre del producto!';
@@ -544,10 +612,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 20), // Espacio entre campos
+                const SizedBox(height: 20),
                 TextFormField(
                   controller: _schoolController,
-                  decoration: const InputDecoration(labelText: 'Colegio del producto', filled: true, fillColor: Colors.white, ),
+                  cursorColor: Colors.black,
+                  decoration: InputDecoration(
+                    labelText: 'Colegio del producto',
+                    labelStyle: TextStyle( color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.grey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.blue),
+                    ),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '¡Falta el colegio al que pertenece!';
@@ -555,10 +637,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 20), // Espacio entre campos
+                const SizedBox(height: 20),
                 TextFormField(
                   controller: _sizeController,
-                  decoration: const InputDecoration(labelText: 'Talla del producto', filled: true, fillColor: Colors.white, ),
+                  cursorColor: Colors.black,
+                  decoration: InputDecoration(
+                    labelText: 'Talla del producto',
+                    labelStyle: TextStyle( color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.grey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.blue),
+                    ),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '¡Falta la talla la cual es!';
@@ -566,10 +662,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 20), // Espacio entre campos
+                const SizedBox(height: 20),
                 TextFormField(
                   controller: _unitsController,
-                  decoration: const InputDecoration(labelText: 'Cantidad del producto', filled: true, fillColor: Colors.white,),
+                  cursorColor: Colors.black,
+                  decoration: InputDecoration(
+                    labelText: 'Cantidad del producto',
+                    labelStyle: TextStyle( color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.grey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.blue),
+                    ),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '¡Falta una cantidad inicial!';
@@ -577,10 +687,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 20), // Espacio entre campos
+                const SizedBox(height: 20),
                 TextFormField(
                   controller: _priceController,
-                  decoration: const InputDecoration(labelText: 'Precio del producto', filled: true, fillColor: Colors.white, ),
+                  cursorColor: Colors.black,
+                  decoration: InputDecoration(
+                    labelText: 'Precio del producto',
+                    labelStyle: TextStyle( color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.grey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.blue),
+                    ),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '¡Falta el precio por unidad!';
@@ -588,13 +712,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 30), // Espacio antes del botón
-                Center( // Centra el botón
+                const SizedBox(height: 30),
+                Center(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10.0,
+                        horizontal: 20.0,
+                      ),
                     ),
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
@@ -605,7 +732,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
                           _unitsController.text,
                           _priceController.text,
                         );
-                        await funcs.AgregarHistorial("Agregar", _nameController.text, int.parse(_unitsController.text), _sizeController.text);
+                        await funcs.AgregarHistorial(
+                          "Agregar",
+                          _nameController.text,
+                          int.parse(_unitsController.text),
+                          _sizeController.text,
+                        );
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -632,6 +764,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 }
+
 
 
 
@@ -665,64 +798,118 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detalles del Producto'),
-        backgroundColor: const Color(0x000fff),
+        backgroundColor: Colors.white,
       ),
       body: BackgroundContainer(
-        child: Center(// Centra todo el contenido verticalmente
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // Ajusta el tamaño vertical al contenido
-            crossAxisAlignment: CrossAxisAlignment.center, // Centra horizontalmente
-            children: [
-              Text(
-                'Nombre: ${widget.nombre}',
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                'Colegio: ${widget.colegio}',
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                'Talla: ${widget.talla}',
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                'Cantidad: ${widget.cantidad}',
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                'Precio: ${widget.precio}',
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16.0),
-              Image.file(imageFile),
-              const SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: () async {
-                  await funcs.GuardarArchivo(imageFile, context);
-                },
-                child: const Text('Descargar QR'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  await funcs.EliminarProducto(
-                    widget.nombre,
-                    widget.colegio,
-                    widget.talla,
-                  );
-                  Navigator.pop(context);
-                },
-                child: const Text('Eliminar producto'),
-              ),
-            ],
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Nombre: ${widget.nombre}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        'Colegio: ${widget.colegio}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        'Talla: ${widget.talla}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        'Cantidad: ${widget.cantidad}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        'Precio: ${widget.precio}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 16.0),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: Image.file(
+                          imageFile,
+                          fit: BoxFit.cover,
+                          height: 150,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                SizedBox(
+                  width: double.infinity, // Asegura que ambos botones tengan el mismo ancho
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      await funcs.GuardarArchivo(imageFile, context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    ),
+                    child: const Text('Descargar QR'),
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+                SizedBox(
+                  width: double.infinity, // Asegura que ambos botones tengan el mismo ancho
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      await funcs.EliminarProducto(
+                        widget.nombre,
+                        widget.colegio,
+                        widget.talla,
+                      );
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    ),
+                    child: const Text('Eliminar producto'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    )
     );
   }
 }
+
 
 
 
@@ -734,6 +921,7 @@ class SearchScreen extends StatefulWidget {
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }
+
 class _SearchScreenState extends State<SearchScreen> {
   List<Widget> additionalButtons = [];
   String? selectedName;
@@ -747,6 +935,7 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Filtros de Búsqueda'),
+        backgroundColor: const Color(0xffffffff),
       ),
       body: BackgroundContainer(
         child: SingleChildScrollView(
@@ -757,34 +946,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 Container(
                   padding: const EdgeInsets.all(10.0),
                   decoration: BoxDecoration(
-                    color: Colors.white, // Fondo blanco
-                    borderRadius: BorderRadius.circular(10.0), // Bordes redondeados
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: TextField(
-                    onChanged: (value) {
-                      setState(() {
-                        selectedName = value;
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Nombre',
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.all(10.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white, // Fondo blanco
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(10.0),
                     boxShadow: [
                       BoxShadow(
@@ -796,14 +958,61 @@ class _SearchScreenState extends State<SearchScreen> {
                     ],
                   ),
                   child: TextField(
+                    cursorColor: Colors.black, // Color del cursor
+                    onChanged: (value) {
+                      setState(() {
+                        selectedName = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Nombre',
+                      labelStyle: const TextStyle(color: Colors.grey),
+                      border: InputBorder.none,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.blue), // Color azul al enfocar
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.grey), // Color gris cuando no está enfocado
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    cursorColor: Colors.black, // Color del cursor
                     onChanged: (value) {
                       setState(() {
                         selectedCollege = value;
                       });
                     },
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Colegio',
+                      labelStyle: const TextStyle(color: Colors.grey),
                       border: InputBorder.none,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.blue), // Color azul al enfocar
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.grey), // Color gris cuando no está enfocado
+                      ),
                     ),
                   ),
                 ),
@@ -811,7 +1020,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   decoration: BoxDecoration(
-                    color: Colors.white, // Fondo blanco
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(10.0),
                     boxShadow: [
                       BoxShadow(
@@ -823,9 +1032,10 @@ class _SearchScreenState extends State<SearchScreen> {
                     ],
                   ),
                   child: DropdownButton<String>(
+                    dropdownColor: Colors.white,
                     value: selectedSize,
                     isExpanded: true,
-                    underline: Container(), // Remueve la línea inferior predeterminada
+                    underline: Container(),
                     onChanged: (String? newValue) {
                       setState(() {
                         selectedSize = newValue;
@@ -865,6 +1075,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         min: 0,
                         max: 200,
                         divisions: 100,
+                        activeColor: Colors.blue, // Color azul para el rango activo
+                        inactiveColor: Colors.grey, // Color gris para el rango inactivo
                         labels: RangeLabels(
                           quantityRange.start.toString(),
                           quantityRange.end.toString(),
@@ -902,6 +1114,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         min: 0,
                         max: 30000,
                         divisions: 100,
+                        activeColor: Colors.blue, // Color azul para el rango activo
+                        inactiveColor: Colors.grey, // Color gris para el rango inactivo
                         labels: RangeLabels(
                           priceRange.start.toString(),
                           priceRange.end.toString(),
@@ -918,9 +1132,9 @@ class _SearchScreenState extends State<SearchScreen> {
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
+
                   child: ElevatedButton(
                     onPressed: () async {
-                      // Lógica para aplicar filtros
                       final filtrados = await funcs.FiltrarProductos(
                         selectedName,
                         selectedCollege,
@@ -932,8 +1146,6 @@ class _SearchScreenState extends State<SearchScreen> {
                         additionalButtons = [];
                         for (int i = 0; i < filtrados.length; i++) {
                           String filtrado = filtrados[i][0] as String;
-
-                          // Dividir la cadena en elementos
                           List<String> elemento = filtrado.split(';');
                           additionalButtons.add(
                             Column(
@@ -957,36 +1169,38 @@ class _SearchScreenState extends State<SearchScreen> {
                                       );
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white, // Fondo blanco
-                                      elevation: 3, // Sombra del botón
+                                      backgroundColor: Colors.white,
+                                      elevation: 3,
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(15), // Bordes redondeados
+                                        borderRadius: BorderRadius.circular(15),
                                       ),
                                       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
                                       alignment: Alignment.centerLeft,
                                     ),
                                     child: Text(
-                                      elemento[0], // Texto dinámico
+                                      elemento[0],
                                       style: const TextStyle(
-                                        color: Colors.black87, // Texto en color oscuro
-                                        fontSize: 16, // Tamaño del texto
+                                        color: Colors.black87,
+                                        fontSize: 16,
                                       ),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 10), // Espacio entre botones
+                                const SizedBox(height: 10),
                               ],
                             ),
                           );
                         }
                       });
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue, // Color del fondo del botón
+                      foregroundColor: Colors.white,),
                     child: const Text('Buscar'),
                   ),
                 ),
                 const SizedBox(height: 10),
                 Column(
-
                   children: additionalButtons,
                 ),
               ],
@@ -997,6 +1211,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 }
+
 
 
 
