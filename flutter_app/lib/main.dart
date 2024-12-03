@@ -1606,7 +1606,11 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
       if (scanData.code != null) {
-        setState(() async {
+        final codigoQR = scanData.code!;
+
+        // 1. Validar el formato del código QR
+        if (funcs.EsCodigoQRValido(codigoQR)) {
+          setState(() async {
           qrResult = scanData.code!;
           final elemento = qrResult.split('-');
           final productoDelQR = await funcs.FiltrarProductos(
@@ -1630,7 +1634,7 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
                 cantidad: element[3],
                 precio: element[4],
               ),
-            );
+            ));
             controller.pauseCamera();
           });
         } else {
@@ -1664,7 +1668,7 @@ class RequestProductScreen extends StatefulWidget {
 }
 
 class _RequestProductScreenState extends State<RequestProductScreen> {
-  final _formKey = GlobalKey<FormState>(); // GlobalKey para gestionar el estado del formulario
+  final _formKey = GlobalKey<FormState>();
   String? selectedName;
   String? selectedCollege;
   String? selectedSize;

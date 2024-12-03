@@ -276,7 +276,7 @@ bool EsCodigoQRValido(String codigoQR) {
   // 2. Implementar la lógica de validación
   // Ejemplo: Verificar si el código QR tiene el formato esperado
   final elemento = codigoQR.split('-');
-  if (elemento.length == 5) { // Asumiendo que el código QR tiene 5 partes separadas por guiones
+  if (elemento.length == 3) { // Asumiendo que el código QR tiene 5 partes separadas por guiones
     return true;
   } else {
     return false;
