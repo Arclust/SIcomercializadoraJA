@@ -96,34 +96,65 @@ Future<int> contarRegistros() async {
 Future<void> eliminarRegistroMasAntiguo() async {
   final directory = await getApplicationDocumentsDirectory();
   final filePath = '${directory.path}/Historial.csv';
-  final file = File(filePath);
+  String csvContent = "";
 
   // Verificar si el archivo existe
-  if (await file.exists()) {
+  if (await File(filePath).exists()) {
     // Leer todas las líneas del archivo
-    final List<String> registros = await file.readAsLines();
+    csvContent = await File(filePath).readAsString();
 
-    // Verificar si hay registros para eliminar
-    if (registros.isNotEmpty) {
-      // Eliminar el registro más antiguo (primera línea)
-      registros.removeAt(0);
+    final List<List<dynamic>> registros = const CsvToListConverter().convert(csvContent);
 
-      // Sobrescribir el archivo con los registros restantes
-      await file.writeAsString(registros.join('\n'));
-      print('El registro más antiguo fue eliminado y el archivo actualizado.');
-    } else {
-      print('El archivo está vacío. No hay registros para eliminar.');
-    }
+    print(registros);
+    registros.removeAt(0);
+    print(registros);
+
+    final String newCsvContent = const ListToCsvConverter().convert(registros);
+
+    await File(filePath).writeAsString(newCsvContent);
+    print('El registro más antiguo fue eliminado y el archivo actualizado.');
   } else {
     print('El archivo no existe.');
   }
 }
 
+
+Future<void> InsertarFilaCSV(String nombreArchivo, List<String> fila) async {
+  try {
+    // 1. Obtén la ruta del directorio de documentos de la aplicación.
+    final directory = await getApplicationDocumentsDirectory();
+    final rutaArchivo = '${directory.path}/$nombreArchivo';
+
+    // 2. Lee el contenido del archivo CSV si existe.
+    String csvContent = "";
+    if (await File(rutaArchivo).exists()) {
+      csvContent = await File(rutaArchivo).readAsString();
+    } else {
+      csvContent = await rootBundle.loadString('assets/$nombreArchivo');
+    }
+
+    // 3. Convierte el contenido del archivo CSV a una lista de filas.
+    final List<List<dynamic>> filas =
+    const CsvToListConverter().convert(csvContent);
+
+    filas.add(fila);
+
+    final String newCsvContent = const ListToCsvConverter().convert(filas);
+
+    await File(rutaArchivo).writeAsString(newCsvContent);
+
+    print('Fila añadida correctamente.');
+  } catch (e) {
+    print('Error al insertar fila en el archivo CSV: $e');
+  }
+}
+
 // Agregar un nuevo registro al historial de forma asincrónica
 Future<void> AgregarHistorial(String accion, String producto, int cantidad, String talla) async {
-  
-  if (await contarRegistros() > 20){
-  await eliminarRegistroMasAntiguo();}
+
+  if (await contarRegistros() > 250){
+    await eliminarRegistroMasAntiguo();
+  }
   var horaAccion = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
   List<String> ultima_modificacion = ['$accion;$producto;$cantidad;$talla;$horaAccion;'];
 
@@ -136,7 +167,7 @@ Future<void> AgregarHistorial(String accion, String producto, int cantidad, Stri
 Future<List<dynamic>> AgregarProducto(String tipo, String colegio, String talla, String cantidad, String precio) async {
   List<dynamic> fila = [];
   try {
-    String qrImagePath = await generarQRProducto(tipo, colegio, talla, cantidad, precio);
+    String qrImagePath = await generarQRProducto(tipo, colegio, talla);
     print('QR generado en: $qrImagePath');
     await InsertarFilaCSV('Inventario.csv',['$tipo;$colegio;$talla;$cantidad;$precio;$qrImagePath']);
     fila = [tipo,colegio,talla,cantidad,precio,qrImagePath];
@@ -146,15 +177,11 @@ Future<List<dynamic>> AgregarProducto(String tipo, String colegio, String talla,
   return fila;
 }
 
-// Future<void> ModificarProducto(String tipo,String colegio,String talla,int nuevaCantidad,double nuevoPrecio,) async{
-//     final directory = await getApplicationDocumentsDirectory()
-// }
 
-
-Future<String> generarQRProducto(String tipo, String colegio, String talla, String cantidad, String precio) async {
+Future<String> generarQRProducto(String tipo, String colegio, String talla) async {
   try {
     // Crear código QR
-    String data = '$tipo-$colegio-$talla-$cantidad-$precio';
+    String data = '$tipo-$colegio-$talla';
 
     final qrPainter = QrPainter(
       data: data,
@@ -177,7 +204,7 @@ Future<String> generarQRProducto(String tipo, String colegio, String talla, Stri
     // Crear una imagen a partir del QrPainter
     final pictureRecorder = ui.PictureRecorder();
     final canvas = Canvas(pictureRecorder);
-    final size = Size(200, 200);
+    const size = Size(200, 200);
     qrPainter.paint(canvas, size);
 
     final img = await pictureRecorder.endRecording().toImage(size.width.toInt(), size.height.toInt());
@@ -198,35 +225,8 @@ Future<String> generarQRProducto(String tipo, String colegio, String talla, Stri
 
 
 
-Future<void> InsertarFilaCSV(String nombreArchivo, List<String> fila) async {
-  try {
-    // 1. Obtén la ruta del directorio de documentos de la aplicación.
-    final directory = await getApplicationDocumentsDirectory();
-    final rutaArchivo = '${directory.path}/$nombreArchivo';
 
-    // 2. Lee el contenido del archivo CSV utilizando rootBundle (si existe).
-    String csvContent = "";
-    if (await File(rutaArchivo).exists()) {
-      csvContent = await File(rutaArchivo).readAsString();
-    } else{
-      csvContent = await rootBundle.loadString('assets/$nombreArchivo');
-    }
-    // 3. Convierte el contenido del archivo CSV a una lista de filas.
-    final List<List<dynamic>> filas =
-    const CsvToListConverter().convert(csvContent);
 
-    // 4. Agrega la nueva fila a la lista de filas.
-    filas.add(fila);
-
-    // 5. Convierte la lista de filas de nuevo a un string CSV.
-    final String newCsvContent = const ListToCsvConverter().convert(filas);
-
-    // 6. Escribe el nuevo contenido CSV en el archivo en el directorio de documentos.
-    await File(rutaArchivo).writeAsString(newCsvContent);
-  } catch (e) {
-    print('Error al insertar fila en el archivo CSV: $e');
-  }
-}
 
 Future<List<List<dynamic>>> FiltrarProductos(
 

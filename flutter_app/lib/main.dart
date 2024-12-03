@@ -152,8 +152,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => MyHomePage(title: _userController.text),
-                        ),
+                          builder: (context) => const MyHomePage()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -320,10 +319,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => MyHomePage(
-                                      title: _userController.text,
-                                    ),
-                                  ),
+                                    builder: (context) => const MyHomePage()),
                                 );
                               } else {
                                 setState(() {
@@ -369,11 +365,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
 
 class MyHomePage extends StatefulWidget {
-  final String title;
 
   const MyHomePage({
     super.key,
-    required this.title,
   });
 
   @override
@@ -1366,6 +1360,98 @@ class ReportScreen extends StatelessWidget {
 }
 
 
+//PANTALLA DE STOCK FINAL
+class StockScreen extends StatefulWidget {
+  final String accion;
+  final String nuevaCant;
+
+  const StockScreen({
+    super.key,
+    required this.accion,
+    required this.nuevaCant,
+  });
+
+  @override
+  _StockScreenState createState() => _StockScreenState();
+}
+
+class _StockScreenState extends State<StockScreen> {
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Stock actual'),
+        backgroundColor: Colors.white,
+      ),
+      body: BackgroundContainer(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
+              width: 300,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    widget.accion == 'aumentar' || widget.accion == 'disminuir'
+                    ? 'Cantidad actualizada, nueva cantidad: ${widget.nuevaCant}'
+                        : widget.accion == 'cambiarPrecio'
+                    ? 'Precio actualizado, nuevo precio: ${widget.nuevaCant}'
+                        : '',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () async {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MyHomePage()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    ),
+                    child: const Text(
+                      'Volver al inicio',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  )
+
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
 
 // PANTALLA DE SOLICITUD DE QR
 
@@ -1464,18 +1550,29 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
       if (scanData.code != null) {
-        setState(() {
+        setState(() async {
           qrResult = scanData.code!;
           final elemento = qrResult.split('-');
+          final productoDelQR = await funcs.FiltrarProductos(
+            elemento[0],
+            elemento[1],
+            elemento[2],
+            const RangeValues(0, double.infinity),
+            const RangeValues(0, double.infinity),
+          );
+          String fila = productoDelQR[0][0] as String;
+
+          List<String> element =
+          fila.substring(0, fila.length).split(';');
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ModifyProductScreen(
-                nombre: elemento[0],
-                colegio: elemento[1],
-                talla: elemento[2],
-                cantidad: elemento[3],
-                precio: elemento[4],
+                nombre: element[0],
+                colegio: element[1],
+                talla: element[2],
+                cantidad: element[3],
+                precio: element[4],
               ),
             ),
           );
@@ -1640,7 +1737,6 @@ class _RequestProductScreenState extends State<RequestProductScreen> {
                       child: ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            // Si la validación pasa, hacemos la llamada y navegación
                             final aModificar = await funcs.FiltrarProductos(
                               selectedName,
                               selectedCollege,
@@ -1728,6 +1824,102 @@ class _ModifyProductScreenState extends State<ModifyProductScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center, // Centrar los botones
           children: [
+            Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,  // Esto alinea todo a la izquierda
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'NOMBRE PRODUCTO:',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(
+                    widget.nombre,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'COLEGIO PRODUCTO:',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(
+                    widget.colegio,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'TALLA PRODUCTO:',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(
+                    widget.talla,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'CANTIDAD ACTUAL:',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(
+                    widget.cantidad,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'PRECIO ACTUAL PRODUCTO:',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(
+                    widget.precio,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(355, 70), // Ancho y alto
@@ -1842,6 +2034,7 @@ class QuantityModifyProductScreen extends StatefulWidget {
 class _QuantityModifyProductScreenState
     extends State<QuantityModifyProductScreen> {
   late String selectedQuantity;
+  final _formKey = GlobalKey<FormState>();  // <-- Agregar la clave del formulario
 
   @override
   Widget build(BuildContext context) {
@@ -1858,95 +2051,147 @@ class _QuantityModifyProductScreenState
       body: BackgroundContainer(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                cursorColor: Colors.black, // Cursor negro
-                onChanged: (value) {
-                  setState(() {
-                    selectedQuantity = value;
-                  });
-                },
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  labelText: widget.accion == 'aumentar'
-                      ? 'Ingrese cuanto desea aumentar'
-                      : widget.accion == 'disminuir'
-                      ? 'Ingrese cuanto desea disminuir'
-                      : widget.accion == 'cambiarPrecio'
-                      ? 'Ingrese nuevo precio'
-                      : '',
-                  labelStyle: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 16,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.blue),
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Center(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-
-                    minimumSize: const Size(200, 50),
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    textStyle: const TextStyle(fontSize: 16),
-                  ),
-                  onPressed: () async {
-                    if (widget.accion == 'aumentar') {
-                      await funcs.ActualizarProducto(
-                          widget.nombre,
-                          widget.colegio,
-                          widget.talla,
-                          widget.cantidad,
-                          widget.precio,
-                          'aumentar',
-                          int.parse(selectedQuantity));
-                    } else if (widget.accion == 'disminuir') {
-                      await funcs.ActualizarProducto(
-                          widget.nombre,
-                          widget.colegio,
-                          widget.talla,
-                          widget.cantidad,
-                          widget.precio,
-                          'disminuir',
-                          int.parse(selectedQuantity));
-                    } else if (widget.accion == 'cambiarPrecio') {
-                      await funcs.ActualizarProducto(
-                          widget.nombre,
-                          widget.colegio,
-                          widget.talla,
-                          widget.cantidad,
-                          widget.precio,
-                          'cambiarPrecio',
-                          int.parse(selectedQuantity));
-                    }
-                    Navigator.pop(context);
+          child: Form(  // <-- Aquí es donde se envuelve el formulario
+            key: _formKey,  // <-- Asignamos la clave al Form
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(  // <-- Cambié TextField por TextFormField
+                  cursorColor: Colors.black, // Cursor negro
+                  onChanged: (value) {
+                    setState(() {
+                      selectedQuantity = value;
+                    });
                   },
-
-                  child: const Text('Actualizar'),
-
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    labelText: widget.accion == 'aumentar'
+                        ? 'Ingrese cuanto desea aumentar'
+                        : widget.accion == 'disminuir'
+                        ? 'Ingrese cuanto desea disminuir'
+                        : widget.accion == 'cambiarPrecio'
+                        ? 'Ingrese nuevo precio'
+                        : '',
+                    labelStyle: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.blue),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '¡Este campo no puede estar vacío!';
+                    }
+                    // Validar si la cantidad a disminuir es mayor al stock actual
+                    if (widget.accion == 'disminuir') {
+                      int cantidad = int.parse(widget.cantidad); // Stock actual
+                      int cantidadIngresada = int.parse(value); // Cantidad ingresada
+                      if (cantidadIngresada > cantidad) {
+                        return '¡La cantidad a disminuir es mayor a la cantidad actual!';
+                      }
+                    }
+                    // Validar si el precio es negativo
+                    if (widget.accion == 'cambiarPrecio') {
+                      double precioNuevo = double.parse(value); // Precio ingresado
+                      if (precioNuevo <= 0) {
+                        return '¡El precio nuevo debe ser mayor a cero!';
+                      }
+                    }
+                    if (widget.accion == 'aumentar') {
+                      int cantidad = int.parse(widget.cantidad); // Stock actual
+                      int cantidadIngresada = int.parse(value); // Precio ingresado
+                      if (cantidadIngresada+cantidad > 200) {
+                        return '¡La cantidad a aumentar sobrepasa el limite de 200!';
+                      }
+                    }
+                    return null;
+                  },
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                Center(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(200, 50),
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      textStyle: const TextStyle(fontSize: 16),
+                    ),
+                    onPressed: () async {
+                      if (_formKey.currentState?.validate() ?? false) {
+                        // Si el formulario es válido, proceder con la actualización
+                        if (widget.accion == 'aumentar') {
+                          int cantidad = int.parse(widget.cantidad); // Stock actual
+                          int cantidadIngresada = int.parse(selectedQuantity);
+                          int cantidadNueva = cantidad + cantidadIngresada;
+                          await funcs.ActualizarProducto(
+                              widget.nombre,
+                              widget.colegio,
+                              widget.talla,
+                              widget.cantidad,
+                              widget.precio,
+                              'aumentar',
+                              int.parse(selectedQuantity));
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => StockScreen(accion: widget.accion, nuevaCant: cantidadNueva.toString())),
+                          );
+                        } else if (widget.accion == 'disminuir') {
+                          int cantidad = int.parse(widget.cantidad); // Stock actual
+                          int cantidadIngresada = int.parse(selectedQuantity);
+                          int cantidadNueva = cantidad - cantidadIngresada;
+                          await funcs.ActualizarProducto(
+                              widget.nombre,
+                              widget.colegio,
+                              widget.talla,
+                              widget.cantidad,
+                              widget.precio,
+                              'disminuir',
+                              int.parse(selectedQuantity));
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => StockScreen(accion: widget.accion, nuevaCant: cantidadNueva.toString())),
+                          );
+                        } else if (widget.accion == 'cambiarPrecio') {
+                          await funcs.ActualizarProducto(
+                              widget.nombre,
+                              widget.colegio,
+                              widget.talla,
+                              widget.cantidad,
+                              widget.precio,
+                              'cambiarPrecio',
+                              int.parse(selectedQuantity));
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => StockScreen(accion: widget.accion, nuevaCant: selectedQuantity)),
+                          );
+                        }
+                      }
+                    },
+                    child: const Text('Actualizar'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 }
+
 
 
 
