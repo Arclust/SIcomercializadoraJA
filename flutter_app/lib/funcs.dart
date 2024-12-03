@@ -72,16 +72,58 @@ Future<void> cargarDatos() async {
   df_historial = await cargarCSV('Historial.csv');
 }
 
-// Contar registros en el historial
-int contar_registros_historial() {
-  return df_historial.length;
+// Función para contar los registros en el archivo CSV
+Future<int> contarRegistros() async {
+  final directory = await getApplicationDocumentsDirectory();
+  final filePath = '${directory.path}/Historial.csv';
+  final file = File(filePath);
+
+  // Verificar si el archivo existe
+  if (await file.exists()) {
+    // Leer todas las líneas del archivo
+    final List<String> registros = await file.readAsLines();
+
+    // Contar la cantidad de registros
+    return registros.length;
+  } else {
+    print('El archivo no existe.');
+    return 0; // Si no existe, devuelve 0
+  }
 }
 
 
+// Función para eliminar el registro más antiguo y reordenar el CSV
+Future<void> eliminarRegistroMasAntiguo() async {
+  final directory = await getApplicationDocumentsDirectory();
+  final filePath = '${directory.path}/Historial.csv';
+  final file = File(filePath);
+
+  // Verificar si el archivo existe
+  if (await file.exists()) {
+    // Leer todas las líneas del archivo
+    final List<String> registros = await file.readAsLines();
+
+    // Verificar si hay registros para eliminar
+    if (registros.isNotEmpty) {
+      // Eliminar el registro más antiguo (primera línea)
+      registros.removeAt(0);
+
+      // Sobrescribir el archivo con los registros restantes
+      await file.writeAsString(registros.join('\n'));
+      print('El registro más antiguo fue eliminado y el archivo actualizado.');
+    } else {
+      print('El archivo está vacío. No hay registros para eliminar.');
+    }
+  } else {
+    print('El archivo no existe.');
+  }
+}
 
 // Agregar un nuevo registro al historial de forma asincrónica
 Future<void> AgregarHistorial(String accion, String producto, int cantidad, String talla) async {
-
+  
+  if (await contarRegistros() > 20){
+  await eliminarRegistroMasAntiguo();}
   var horaAccion = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
   List<String> ultima_modificacion = ['$accion;$producto;$cantidad;$talla;$horaAccion;'];
 

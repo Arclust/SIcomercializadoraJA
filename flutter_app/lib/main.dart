@@ -76,7 +76,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             SystemNavigator.pop();
           },
         ),
-        title: Text(
+        title: const Text(
           'Registro de usuario',
           style: TextStyle(
             color: Colors.black,
@@ -103,6 +103,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 15),
                   TextField(
                     controller: _userController,
+                    cursorColor: Colors.black,
                     decoration: InputDecoration(
                       labelText: 'Usuario',
                       labelStyle: TextStyle(fontSize: 16, color: Colors.grey),
@@ -116,6 +117,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 15),
                   TextField(
                     controller: _passwordController,
+                    cursorColor: Colors.black,
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Contraseña',
@@ -195,61 +197,155 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>(); // GlobalKey para gestionar el estado del formulario
   final TextEditingController _userController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  String? _errorMessage;  // Variable para almacenar el mensaje de error
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Iniciar Sesión'),
+        title: const Text(
+          'Iniciar Sesión',
+          style: TextStyle(color: Colors.black),
+        ),
+        backgroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.black),
+        elevation: 0,
       ),
-      body: BackgroundContainer(
-        child: Center(
-          child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12.0),
-            ),
-            elevation: 4.0,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: _userController,
-                    decoration: const InputDecoration(
-                      labelText: 'Usuario',
-                      hintText: 'Ingrese su nombre de usuario',
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  TextField(
-                    controller: _passwordController, // Assign the controller
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Contraseña',
-                      hintText: 'Ingrese su contraseña',
-                    ),
-                  ),
-                  const SizedBox(height: 20.0),
-                  ElevatedButton(
-                    onPressed: () async {
-                      bool usuarioCoincide = await funcs.InicioSesion(_userController.text, _passwordController.text);
-                      if (usuarioCoincide){
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => MyHomePage(title: _userController.text,)),
-                        );
-                      }
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus(); // Cierra el teclado al tocar fuera de los campos
+        },
+        child: BackgroundContainer(
+          child: Center(
+            child: SingleChildScrollView( // Permite desplazar si hay mucho contenido
+              child: Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                elevation: 4.0,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(  // Envolvemos los campos dentro del Form
+                    key: _formKey,  // Asignamos el GlobalKey
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextFormField(  // Usamos TextFormField en lugar de TextField
+                          controller: _userController,
+                          cursorColor: Colors.black,
+                          decoration: InputDecoration(
+                            labelText: 'Usuario',
+                            labelStyle: const TextStyle(color: Colors.grey),
+                            hintText: 'Ingrese su nombre de usuario',
+                            hintStyle: const TextStyle(color: Colors.grey),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: const BorderSide(
+                                color: Colors.grey,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: const BorderSide(
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Por favor ingrese su nombre de usuario';
+                            }
+                            return null;  // Si no hay error, retorna null
+                          },
+                        ),
+                        const SizedBox(height: 16.0),
+                        TextFormField(  // Usamos TextFormField también para la contraseña
+                          controller: _passwordController,
+                          obscureText: true,
+                          cursorColor: Colors.black,
+                          decoration: InputDecoration(
+                            labelText: 'Contraseña',
+                            labelStyle: const TextStyle(color: Colors.grey),
+                            hintText: 'Ingrese su contraseña',
+                            hintStyle: const TextStyle(color: Colors.grey),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: const BorderSide(
+                                color: Colors.grey,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: const BorderSide(
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Por favor ingrese su contraseña';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 20.0),
+                        // Mostrar mensaje de error si existe
+                        if (_errorMessage != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: Text(
+                              _errorMessage!,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              bool usuarioCoincide = await funcs.InicioSesion(
+                                _userController.text,
+                                _passwordController.text,
+                              );
 
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue, // Color de fondo del botón
-                      padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
+                              if (usuarioCoincide) {
+                                setState(() {
+                                  _errorMessage = null;  // Limpiamos el mensaje de error
+                                });
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MyHomePage(
+                                      title: _userController.text,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                setState(() {
+                                  _errorMessage = 'Usuario o contraseña incorrectos';
+                                });
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 40.0,
+                              vertical: 12.0,
+                            ),
+                          ),
+                          child: const Text('Iniciar Sesión'),
+                        ),
+                      ],
                     ),
-                    child: const Text('Iniciar Sesión'),
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -258,6 +354,12 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
+
+
+
+
+
 
 
 
@@ -279,112 +381,135 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  Future<bool> _onWillPop() async {
+    SystemNavigator.pop();
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0x00FFFFFF), // Color similar al de la barra superior en la imagen
-        title: const Text('¡Hola! ¿Que deseas hacer?'),
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/fondo.png'), // Asegúrate de que la imagen esté en la ruta correcta
-            fit: BoxFit.cover, // Ajusta la imagen para cubrir toda la pantalla
-          ),
-
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color(0xFFFFFFFF), // Color similar al de la barra superior en la imagen
+          title: const Text('¡Hola! ¿Que deseas hacer?'),
         ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start, // Alinea al inicio del centro
-            children: [
-              const SizedBox(height: 80), // Espacio en la parte superior
-              SizedBox(
-                width: 355,
-                height: 70,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const AddProductScreen()),
-                    );
-                  },
-                  child: const Text(
-                    "Agregar producto",
-                    style: TextStyle(fontSize: 18,color: Colors.black),
+        body: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/background.jpg'), // Asegúrate de que la imagen esté en la ruta correcta
+              fit: BoxFit.cover, // Ajusta la imagen para cubrir toda la pantalla
+            ),
+
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start, // Alinea al inicio del centro
+              children: [
+                const SizedBox(height: 80), // Espacio en la parte superior
+                SizedBox(
+                  width: 355,
+                  height: 70,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AddProductScreen()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white, // Fondo blanco
+                    ),
+                    child: const Text(
+                      "Agregar producto",
+                      style: TextStyle(fontSize: 18,color: Colors.black),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20), // Espacio entre los botones
-              SizedBox(
-                width: 355,
-                height: 70,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const ScanQRScreen()),
-                    );
-                  },
-                  child: const Text(
-                    "Actualizar producto",
-                    style: TextStyle(fontSize: 18,color: Colors.black),
+                const SizedBox(height: 20), // Espacio entre los botones
+                SizedBox(
+                  width: 355,
+                  height: 70,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ScanQRScreen()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white, // Fondo blanco
+                    ),
+                    child: const Text(
+                      "Actualizar producto",
+                      style: TextStyle(fontSize: 18,color: Colors.black),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20), // Espacio entre los botones
-              SizedBox(
-                width: 355,
-                height: 70,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const SearchScreen()),
-                    );
-                  },
-                  child: const Text(
-                    "Buscador de productos",
-                    style: TextStyle(fontSize: 18,color: Colors.black),
+                const SizedBox(height: 20), // Espacio entre los botones
+                SizedBox(
+                  width: 355,
+                  height: 70,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SearchScreen()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white, // Fondo blanco
+                    ),
+                    child: const Text(
+                      "Buscador de productos",
+                      style: TextStyle(fontSize: 18,color: Colors.black),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20), // Espacio entre los botones
-              SizedBox(
-                width: 355,
-                height: 70,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const ReportScreen()),
-                    );
-                  },
-                  child: const Text(
-                    "Generar reporte",
-                    style: TextStyle(fontSize: 18,color: Colors.black),
+                const SizedBox(height: 20), // Espacio entre los botones
+                SizedBox(
+                  width: 355,
+                  height: 70,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ReportScreen()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white, // Fondo blanco
+                    ),
+                    child: const Text(
+                      "Generar reporte",
+                      style: TextStyle(fontSize: 18,color: Colors.black),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20), // Espacio entre los botones
-              SizedBox(
-                width: 355,
-                height: 70,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    var movements = await funcs.LeerHistorial();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MovementsScreen(movimientos: movements)),
-                    );
-                  },
-                  child: const Text(
-                    "Historial de movimientos",
-                    style: TextStyle(fontSize: 18, color: Colors.black),
+                const SizedBox(height: 20), // Espacio entre los botones
+                SizedBox(
+                  width: 355,
+                  height: 70,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      var movements = await funcs.LeerHistorial();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MovementsScreen(movimientos: movements)),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white, // Fondo blanco
+                    ),
+                    child: const Text(
+                      "Historial de movimientos",
+                      style: TextStyle(fontSize: 18, color: Colors.black),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -423,7 +548,9 @@ Widget _buildMenuButton(String text, VoidCallback onPressed) {
 
 class MovementsScreen extends StatefulWidget {
   final List<Map<String, dynamic>> movimientos;
-  const MovementsScreen({super.key,
+
+  const MovementsScreen({
+    super.key,
     required this.movimientos,
   });
 
@@ -432,17 +559,19 @@ class MovementsScreen extends StatefulWidget {
 }
 
 class _MovementsScreenState extends State<MovementsScreen> {
-
   @override
   Widget build(BuildContext context) {
+    // Invertimos la lista para mostrar los movimientos más recientes primero
+    final movimientosInvertidos = widget.movimientos.reversed.toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Historial de Movimientos"),
       ),
       body: ListView.builder(
-        itemCount: widget.movimientos.length,
+        itemCount: movimientosInvertidos.length,
         itemBuilder: (context, index) {
-          final movimiento = widget.movimientos[index];
+          final movimiento = movimientosInvertidos[index];
           final color = obtenerColor(movimiento["accion"]);
 
           return Card(
@@ -496,6 +625,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
   }
 }
 
+
 // PANTALLA AGREGAR PRODUCTOS
 
 class AddProductScreen extends StatefulWidget {
@@ -518,11 +648,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Agregar Producto'),
-        backgroundColor: const Color(0x00FFFFFF),
+        backgroundColor: const Color(0xFFFFFFFF), // Fondo blanco
       ),
       body: BackgroundContainer(
-        child: SingleChildScrollView( // Permite desplazarse si el contenido es extenso
-          padding: const EdgeInsets.all(16.0), // Agrega un margen alrededor del contenido
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
             child: Column(
@@ -530,7 +660,21 @@ class _AddProductScreenState extends State<AddProductScreen> {
               children: [
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Tipo de producto', filled: true, fillColor: Colors.white, ),
+                  cursorColor: Colors.black,
+                  decoration: InputDecoration(
+                    labelText: 'Tipo de producto',
+                    labelStyle: TextStyle( color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.grey), // Borde gris cuando no está enfocado
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.blue), // Borde azul cuando está enfocado
+                    ),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '¡Falta el nombre del producto!';
@@ -538,10 +682,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 20), // Espacio entre campos
+                const SizedBox(height: 20),
                 TextFormField(
                   controller: _schoolController,
-                  decoration: const InputDecoration(labelText: 'Colegio del producto', filled: true, fillColor: Colors.white, ),
+                  cursorColor: Colors.black,
+                  decoration: InputDecoration(
+                    labelText: 'Colegio del producto',
+                    labelStyle: TextStyle( color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.grey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.blue),
+                    ),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '¡Falta el colegio al que pertenece!';
@@ -549,10 +707,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 20), // Espacio entre campos
+                const SizedBox(height: 20),
                 TextFormField(
                   controller: _sizeController,
-                  decoration: const InputDecoration(labelText: 'Talla del producto', filled: true, fillColor: Colors.white, ),
+                  cursorColor: Colors.black,
+                  decoration: InputDecoration(
+                    labelText: 'Talla del producto',
+                    labelStyle: TextStyle( color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.grey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.blue),
+                    ),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '¡Falta la talla la cual es!';
@@ -560,10 +732,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 20), // Espacio entre campos
+                const SizedBox(height: 20),
                 TextFormField(
                   controller: _unitsController,
-                  decoration: const InputDecoration(labelText: 'Cantidad del producto', filled: true, fillColor: Colors.white,),
+                  cursorColor: Colors.black,
+                  decoration: InputDecoration(
+                    labelText: 'Cantidad del producto',
+                    labelStyle: TextStyle( color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.grey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.blue),
+                    ),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '¡Falta una cantidad inicial!';
@@ -571,10 +757,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 20), // Espacio entre campos
+                const SizedBox(height: 20),
                 TextFormField(
                   controller: _priceController,
-                  decoration: const InputDecoration(labelText: 'Precio del producto', filled: true, fillColor: Colors.white, ),
+                  cursorColor: Colors.black,
+                  decoration: InputDecoration(
+                    labelText: 'Precio del producto',
+                    labelStyle: TextStyle( color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.grey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: const BorderSide(color: Colors.blue),
+                    ),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '¡Falta el precio por unidad!';
@@ -582,13 +782,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 30), // Espacio antes del botón
-                Center( // Centra el botón
+                const SizedBox(height: 30),
+                Center(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10.0,
+                        horizontal: 20.0,
+                      ),
                     ),
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
@@ -599,7 +802,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
                           _unitsController.text,
                           _priceController.text,
                         );
-                        await funcs.AgregarHistorial("Agregar", _nameController.text, int.parse(_unitsController.text), _sizeController.text);
+                        await funcs.AgregarHistorial(
+                          "Agregar",
+                          _nameController.text,
+                          int.parse(_unitsController.text),
+                          _sizeController.text,
+                        );
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -629,8 +837,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
 
 
-//PANTALLA DE DETALLES PRODUCTO
 
+//PANTALLA DE DETALLES PRODUCTO
 class ProductDetailsScreen extends StatefulWidget {
   final String nombre;
   final String colegio;
@@ -660,39 +868,119 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detalles del Producto'),
+        backgroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Nombre: ${widget.nombre}'),
-            Text('Colegio: ${widget.colegio}'),
-            Text('Talla: ${widget.talla}'),
-            Text('Cantidad: ${widget.cantidad}'),
-            Text('Precio: ${widget.precio}'),
-            const SizedBox(height: 16.0), // Add some spacing,
-            Image.file(imageFile),
-            const SizedBox(height: 16.0), // Add some spacing between image and button
-            ElevatedButton(
-              onPressed: () async {
-                await funcs.GuardarArchivo(imageFile, context);
-              },
-              child: const Text('Descargar QR'),
+      body: BackgroundContainer(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Nombre: ${widget.nombre}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        'Colegio: ${widget.colegio}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        'Talla: ${widget.talla}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        'Cantidad: ${widget.cantidad}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text(
+                        'Precio: ${widget.precio}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 16.0),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: Image.file(
+                          imageFile,
+                          fit: BoxFit.cover,
+                          height: 150,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                SizedBox(
+                  width: double.infinity, // Asegura que ambos botones tengan el mismo ancho
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      await funcs.GuardarArchivo(imageFile, context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    ),
+                    child: const Text('Descargar QR'),
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+                SizedBox(
+                  width: double.infinity, // Asegura que ambos botones tengan el mismo ancho
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      await funcs.EliminarProducto(
+                        widget.nombre,
+                        widget.colegio,
+                        widget.talla,
+                      );
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    ),
+                    child: const Text('Eliminar producto'),
+                  ),
+                ),
+              ],
             ),
-            ElevatedButton(
-              onPressed: () async {
-                await funcs.EliminarProducto(widget.nombre, widget.colegio, widget.talla);
-                Navigator.pop(context);
-              },
-              child: const Text('Eliminar producto'),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
+
+
 
 
 //PANTALLA BUSQUEDA CON FILTROS
@@ -703,6 +991,7 @@ class SearchScreen extends StatefulWidget {
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }
+
 class _SearchScreenState extends State<SearchScreen> {
   List<Widget> additionalButtons = [];
   String? selectedName;
@@ -716,6 +1005,7 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Filtros de Búsqueda'),
+        backgroundColor: const Color(0xffffffff),
       ),
       body: BackgroundContainer(
         child: SingleChildScrollView(
@@ -726,34 +1016,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 Container(
                   padding: const EdgeInsets.all(10.0),
                   decoration: BoxDecoration(
-                    color: Colors.white, // Fondo blanco
-                    borderRadius: BorderRadius.circular(10.0), // Bordes redondeados
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: TextField(
-                    onChanged: (value) {
-                      setState(() {
-                        selectedName = value;
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Nombre',
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.all(10.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white, // Fondo blanco
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(10.0),
                     boxShadow: [
                       BoxShadow(
@@ -765,14 +1028,61 @@ class _SearchScreenState extends State<SearchScreen> {
                     ],
                   ),
                   child: TextField(
+                    cursorColor: Colors.black, // Color del cursor
+                    onChanged: (value) {
+                      setState(() {
+                        selectedName = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Nombre',
+                      labelStyle: const TextStyle(color: Colors.grey),
+                      border: InputBorder.none,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.blue), // Color azul al enfocar
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.grey), // Color gris cuando no está enfocado
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    cursorColor: Colors.black, // Color del cursor
                     onChanged: (value) {
                       setState(() {
                         selectedCollege = value;
                       });
                     },
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Colegio',
+                      labelStyle: const TextStyle(color: Colors.grey),
                       border: InputBorder.none,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.blue), // Color azul al enfocar
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.grey), // Color gris cuando no está enfocado
+                      ),
                     ),
                   ),
                 ),
@@ -780,7 +1090,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   decoration: BoxDecoration(
-                    color: Colors.white, // Fondo blanco
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(10.0),
                     boxShadow: [
                       BoxShadow(
@@ -792,9 +1102,10 @@ class _SearchScreenState extends State<SearchScreen> {
                     ],
                   ),
                   child: DropdownButton<String>(
+                    dropdownColor: Colors.white,
                     value: selectedSize,
                     isExpanded: true,
-                    underline: Container(), // Remueve la línea inferior predeterminada
+                    underline: Container(),
                     onChanged: (String? newValue) {
                       setState(() {
                         selectedSize = newValue;
@@ -834,6 +1145,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         min: 0,
                         max: 200,
                         divisions: 100,
+                        activeColor: Colors.blue, // Color azul para el rango activo
+                        inactiveColor: Colors.grey, // Color gris para el rango inactivo
                         labels: RangeLabels(
                           quantityRange.start.toString(),
                           quantityRange.end.toString(),
@@ -871,6 +1184,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         min: 0,
                         max: 30000,
                         divisions: 100,
+                        activeColor: Colors.blue, // Color azul para el rango activo
+                        inactiveColor: Colors.grey, // Color gris para el rango inactivo
                         labels: RangeLabels(
                           priceRange.start.toString(),
                           priceRange.end.toString(),
@@ -887,9 +1202,9 @@ class _SearchScreenState extends State<SearchScreen> {
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
+
                   child: ElevatedButton(
                     onPressed: () async {
-                      // Lógica para aplicar filtros
                       final filtrados = await funcs.FiltrarProductos(
                         selectedName,
                         selectedCollege,
@@ -901,8 +1216,6 @@ class _SearchScreenState extends State<SearchScreen> {
                         additionalButtons = [];
                         for (int i = 0; i < filtrados.length; i++) {
                           String filtrado = filtrados[i][0] as String;
-
-                          // Dividir la cadena en elementos
                           List<String> elemento = filtrado.split(';');
                           additionalButtons.add(
                             Column(
@@ -926,36 +1239,38 @@ class _SearchScreenState extends State<SearchScreen> {
                                       );
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white, // Fondo blanco
-                                      elevation: 3, // Sombra del botón
+                                      backgroundColor: Colors.white,
+                                      elevation: 3,
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(15), // Bordes redondeados
+                                        borderRadius: BorderRadius.circular(15),
                                       ),
                                       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
                                       alignment: Alignment.centerLeft,
                                     ),
                                     child: Text(
-                                      elemento[0], // Texto dinámico
+                                      elemento[0],
                                       style: const TextStyle(
-                                        color: Colors.black87, // Texto en color oscuro
-                                        fontSize: 16, // Tamaño del texto
+                                        color: Colors.black87,
+                                        fontSize: 16,
                                       ),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 10), // Espacio entre botones
+                                const SizedBox(height: 10),
                               ],
                             ),
                           );
                         }
                       });
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue, // Color del fondo del botón
+                      foregroundColor: Colors.white,),
                     child: const Text('Buscar'),
                   ),
                 ),
                 const SizedBox(height: 10),
                 Column(
-
                   children: additionalButtons,
                 ),
               ],
@@ -971,8 +1286,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
 
 
-//PANTALLA CREACION DE REPORTES
 
+//PANTALLA CREACION DE REPORTES
 
 class ReportScreen extends StatelessWidget {
   const ReportScreen({super.key});
@@ -980,71 +1295,76 @@ class ReportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFB3E5FC), // Fondo similar al de la imagen
-      body: Center(
-        child: Container(
-          width: 300,
-          height: 500,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Text(
-                  'Reporte creado',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black54,
+      appBar: AppBar(
+        title: const Text('Reporte Diario'),
+        backgroundColor: Colors.white,
+      ),
+      body: BackgroundContainer(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
+              width: 300,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(height: 20), // Espacio para el contenido vacío
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: ElevatedButton(
-                  onPressed: () async{
-                    final historial = await funcs.LeerHistorial();
-                    await funcs.ReporteDiario(historial);
-
-                    final fechaActual = DateFormat('yyyy-MM-dd').format(DateTime.now());
-
-                    // Obtener el archivo PDF generado
-                    final directory = await getApplicationDocumentsDirectory();
-                    final file = File('${directory.path}/reporte_diario_transacciones$fechaActual.pdf');
-                    funcs.GuardarArchivo(file, context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00B0FF), // Color del botón
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Reporte creado',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   ),
-                  child: const Text(
-                    'Descargar',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final historial = await funcs.LeerHistorial();
+                      await funcs.ReporteDiario(historial);
+
+                      final fechaActual = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+                      // Obtener el archivo PDF generado
+                      final directory = await getApplicationDocumentsDirectory();
+                      final file = File('${directory.path}/reporte_diario_transacciones$fechaActual.pdf');
+                      funcs.GuardarArchivo(file, context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue, // Color del botón
+                      foregroundColor: Colors.white, // Color del texto
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    ),
+                    child: const Text(
+                      'Descargar',
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 }
+
 
 
 // PANTALLA DE SOLICITUD DE QR
@@ -1074,21 +1394,37 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFB3E5FC),
-      body: Column(
-        children: [
-          Expanded(
-            flex: 4,
-            child: QRView(
-              key: qrKey,
-              onQRViewCreated: _onQRViewCreated,
+      appBar: AppBar(
+        title: const Text('Escanear QR'),
+        backgroundColor: Colors.white,
+      ),
+      body: BackgroundContainer(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: Container(
+                width: 250,
+                height: 250,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.blue,
+                    width: 4,
+                  ),
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: QRView(
+                  key: qrKey,
+                  onQRViewCreated: _onQRViewCreated,
+                ),
+              ),
             ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Center(
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Text(
                 qrResult,
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -1096,24 +1432,30 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
                 ),
               ),
             ),
-          ),
-          _backButton(),
-          const SizedBox(height: 20),
-
-        ],
-      ),
-    );
-  }
-
-  Widget _backButton() {
-    return Positioned(
-      top: 20,
-      left: 20,
-      child: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () {
-          Navigator.pop(context);
-        },
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(width: 16), // Espacio entre los botones
+                ElevatedButton(
+                  onPressed: () {
+                    controller?.pauseCamera();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const RequestProductScreen()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                  ),
+                  child: const Text('Ingresar Datos Manuales'),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1127,29 +1469,20 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
           final elemento = qrResult.split('-');
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ModifyProductScreen(nombre: elemento[0], colegio: elemento[1], talla: elemento[2], cantidad: elemento[3], precio: elemento[4])),
+            MaterialPageRoute(
+              builder: (context) => ModifyProductScreen(
+                nombre: elemento[0],
+                colegio: elemento[1],
+                talla: elemento[2],
+                cantidad: elemento[3],
+                precio: elemento[4],
+              ),
+            ),
           );
-          // Pause the camera after navigation
           controller.pauseCamera();
         });
       }
     });
-  }
-
-  void _showDataDialog(BuildContext context, String data) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Datos del código QR'),
-        content: Text(data),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -1158,6 +1491,9 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
     super.dispose();
   }
 }
+
+
+
 
 
 // PANTALLA DE SOLICITAR DATOS MANUALES
@@ -1170,71 +1506,191 @@ class RequestProductScreen extends StatefulWidget {
 }
 
 class _RequestProductScreenState extends State<RequestProductScreen> {
+  final _formKey = GlobalKey<FormState>(); // GlobalKey para gestionar el estado del formulario
   String? selectedName;
   String? selectedCollege;
   String? selectedSize;
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFB3E5FC), // Fondo similar al de la imagen
+      appBar: AppBar(
+        title: const Text('Ingresar Datos Manuales'),
+        backgroundColor: Colors.white,
+      ),
       body: BackgroundContainer(
-        child: Column(
-          children: [
-            TextField(
-              onChanged: (value) {
-                setState(() {
-                  selectedName = value;
-                });
-              },
-              decoration: const InputDecoration(labelText: 'Nombre'),
-            ),
-            TextField(
-              onChanged: (value) {
-                setState(() {
-                  selectedCollege = value;
-                });
-              },
-              decoration: const InputDecoration(labelText: 'Colegio'),
-            ),
-            DropdownButton<String>(
-              value: selectedSize,
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedSize = newValue;
-                });
-              },
-              items: <String>['','S', 'M', 'L', 'XL'].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              hint: const Text('Talla'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                // Aquí se aplicaría la lógica para filtrar los productos
-                final aModificar = await funcs.FiltrarProductos(selectedName, selectedCollege, selectedSize,const RangeValues(0, 500), const RangeValues(0, 50000));
-                String fila = aModificar[0][0] as String;
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
+              padding: const EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Form(  // Usamos un Form para manejar validaciones
+                key: _formKey, // Asignamos el GlobalKey
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      cursorColor: Colors.blue,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedName = value;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Nombre',
+                        labelStyle: TextStyle(color: Colors.grey),
+                        filled: true,
+                        fillColor: Colors.white,
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey),
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.blue),
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Falta nombre';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    TextFormField(
+                      cursorColor: Colors.blue,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedCollege = value;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Colegio',
+                        labelStyle: TextStyle(color: Colors.grey),
+                        filled: true,
+                        fillColor: Colors.white,
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey),
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.blue),
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Falta colegio';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    DropdownButtonFormField<String>(
+                      value: selectedSize,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedSize = newValue;
+                        });
+                      },
+                      items: <String>['', '3', '4', '6', '8', '10', '12', '14', '16', 'S', 'M', 'L', 'XL', 'XXL']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      decoration: const InputDecoration(
+                        labelText: 'Talla',
+                        labelStyle: TextStyle(color: Colors.grey),
+                        filled: true,
+                        fillColor: Colors.white,
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey),
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.blue),
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Falta talla';
+                        }
+                        return null;
+                      },
+                      dropdownColor: Colors.white,
+                    ),
+                    const SizedBox(height: 20.0),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            // Si la validación pasa, hacemos la llamada y navegación
+                            final aModificar = await funcs.FiltrarProductos(
+                              selectedName,
+                              selectedCollege,
+                              selectedSize,
+                              const RangeValues(0, 500),
+                              const RangeValues(0, 50000),
+                            );
+                            String fila = aModificar[0][0] as String;
 
-                // Dividir la cadena, ignorando los corchetes
-                List<String> elemento = fila.substring(0, fila.length).split(';');
-                print(elemento[0]);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ModifyProductScreen(nombre: elemento[0], colegio: elemento[1], talla: elemento[2], cantidad: elemento[3], precio: elemento[4])),
-                );
-              },
-              child: const Text('Modificar'),
+                            List<String> elemento =
+                            fila.substring(0, fila.length).split(';');
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ModifyProductScreen(
+                                  nombre: elemento[0],
+                                  colegio: elemento[1],
+                                  talla: elemento[2],
+                                  cantidad: elemento[3],
+                                  precio: elemento[4],
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          textStyle: const TextStyle(fontSize: 20),
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 40,
+                            vertical: 15,
+                          ),
+                        ),
+                        child: const Text('Modificar'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
+
+
+
 
 
 //PANTALLA MODIFICAR PRODUCTO
@@ -1265,20 +1721,33 @@ class _ModifyProductScreenState extends State<ModifyProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Modificar Producto'),
+        backgroundColor: Colors.white,
       ),
       body: BackgroundContainer(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // Centra los botones verticalmente
+          mainAxisAlignment: MainAxisAlignment.center, // Centrar los botones
           children: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(355, 70), // Ancho y alto
+                backgroundColor: Colors.white, // Fondo blanco
+                foregroundColor: Colors.black, // Texto negro
+                textStyle: const TextStyle(fontSize: 18), // Tamaño de fuente
               ),
               onPressed: () async {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => QuantityModifyProductScreen(nombre: widget.nombre, colegio: widget.colegio, talla: widget.talla, cantidad: widget.cantidad, precio: widget.precio, accion: 'aumentar')),
+                  MaterialPageRoute(
+                    builder: (context) => QuantityModifyProductScreen(
+                      nombre: widget.nombre,
+                      colegio: widget.colegio,
+                      talla: widget.talla,
+                      cantidad: widget.cantidad,
+                      precio: widget.precio,
+                      accion: 'aumentar',
+                    ),
+                  ),
                 );
               },
               child: const Text('Aumentar cantidad'),
@@ -1287,11 +1756,23 @@ class _ModifyProductScreenState extends State<ModifyProductScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(355, 70), // Ancho y alto
+                backgroundColor: Colors.white, // Fondo blanco
+                foregroundColor: Colors.black, // Texto negro
+                textStyle: const TextStyle(fontSize: 18), // Tamaño de fuente
               ),
               onPressed: () async {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => QuantityModifyProductScreen(nombre: widget.nombre, colegio: widget.colegio, talla: widget.talla, cantidad: widget.cantidad, precio: widget.precio, accion: 'disminuir')),
+                  MaterialPageRoute(
+                    builder: (context) => QuantityModifyProductScreen(
+                      nombre: widget.nombre,
+                      colegio: widget.colegio,
+                      talla: widget.talla,
+                      cantidad: widget.cantidad,
+                      precio: widget.precio,
+                      accion: 'disminuir',
+                    ),
+                  ),
                 );
               },
               child: const Text('Disminuir cantidad'),
@@ -1300,11 +1781,23 @@ class _ModifyProductScreenState extends State<ModifyProductScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(355, 70), // Ancho y alto
+                backgroundColor: Colors.white, // Fondo blanco
+                foregroundColor: Colors.black, // Texto negro
+                textStyle: const TextStyle(fontSize: 18), // Tamaño de fuente
               ),
               onPressed: () async {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => QuantityModifyProductScreen(nombre: widget.nombre, colegio: widget.colegio, talla: widget.talla, cantidad: widget.cantidad, precio: widget.precio, accion: 'cambiarPrecio')),
+                  MaterialPageRoute(
+                    builder: (context) => QuantityModifyProductScreen(
+                      nombre: widget.nombre,
+                      colegio: widget.colegio,
+                      talla: widget.talla,
+                      cantidad: widget.cantidad,
+                      precio: widget.precio,
+                      accion: 'cambiarPrecio',
+                    ),
+                  ),
                 );
               },
               child: const Text('Cambiar precio'),
@@ -1315,6 +1808,8 @@ class _ModifyProductScreenState extends State<ModifyProductScreen> {
     );
   }
 }
+
+
 
 
 
@@ -1340,58 +1835,110 @@ class QuantityModifyProductScreen extends StatefulWidget {
   });
 
   @override
-  _QuantityModifyProductScreenState createState() => _QuantityModifyProductScreenState();
+  _QuantityModifyProductScreenState createState() =>
+      _QuantityModifyProductScreenState();
 }
 
-class _QuantityModifyProductScreenState extends State<QuantityModifyProductScreen> {
+class _QuantityModifyProductScreenState
+    extends State<QuantityModifyProductScreen> {
   late String selectedQuantity;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text(
+          'Modificar Producto',
+          style: TextStyle(color: Colors.black),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0, // Opcional: elimina la sombra del AppBar
+        iconTheme: const IconThemeData(color: Colors.black), // Íconos en negro
       ),
       body: BackgroundContainer(
-        child: Container(
-          width: 355,
-          height: 70, padding: const EdgeInsets.all(20.0),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            // ... other widgets
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               TextField(
+                cursorColor: Colors.black, // Cursor negro
                 onChanged: (value) {
                   setState(() {
                     selectedQuantity = value;
                   });
                 },
+                keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  filled: true, // Activa el fondo relleno
-                  fillColor: Colors.white, // Color de fondo
+                  filled: true,
+                  fillColor: Colors.white,
                   labelText: widget.accion == 'aumentar'
                       ? 'Ingrese cuanto desea aumentar'
                       : widget.accion == 'disminuir'
-                      ? 'Ingrese cuanto desea disminuir' // Si es "aumentar" o "disminuir", muestra "Cantidad"
+                      ? 'Ingrese cuanto desea disminuir'
                       : widget.accion == 'cambiarPrecio'
-                      ? 'Ingrese nuevo precio' // Si es "cambiarprecio", muestra "Papa"
-                      : '', // Si no coincide con ninguna opción, muestra una cadena vacía
+                      ? 'Ingrese nuevo precio'
+                      : '',
+                  labelStyle: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 16,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.blue),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
                 ),
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (widget.accion=='aumentar'){
-                    await funcs.ActualizarProducto(widget.nombre, widget.colegio, widget.talla, widget.cantidad, widget.precio,'aumentar',int.parse(selectedQuantity));
-                  }else if(widget.accion=='disminuir'){
-                    await funcs.ActualizarProducto(widget.nombre, widget.colegio, widget.talla, widget.cantidad, widget.precio,'disminuir',int.parse(selectedQuantity));
-                  }else if(widget.accion=='cambiarPrecio'){
-                    await funcs.ActualizarProducto(widget.nombre, widget.colegio, widget.talla, widget.cantidad, widget.precio,'cambiarPrecio',int.parse(selectedQuantity));
-                  }
-                  Navigator.pop(context);
-                },
-                child: const Text('Actualizar'),
+              const SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
 
+                    minimumSize: const Size(200, 50),
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    textStyle: const TextStyle(fontSize: 16),
+                  ),
+                  onPressed: () async {
+                    if (widget.accion == 'aumentar') {
+                      await funcs.ActualizarProducto(
+                          widget.nombre,
+                          widget.colegio,
+                          widget.talla,
+                          widget.cantidad,
+                          widget.precio,
+                          'aumentar',
+                          int.parse(selectedQuantity));
+                    } else if (widget.accion == 'disminuir') {
+                      await funcs.ActualizarProducto(
+                          widget.nombre,
+                          widget.colegio,
+                          widget.talla,
+                          widget.cantidad,
+                          widget.precio,
+                          'disminuir',
+                          int.parse(selectedQuantity));
+                    } else if (widget.accion == 'cambiarPrecio') {
+                      await funcs.ActualizarProducto(
+                          widget.nombre,
+                          widget.colegio,
+                          widget.talla,
+                          widget.cantidad,
+                          widget.precio,
+                          'cambiarPrecio',
+                          int.parse(selectedQuantity));
+                    }
+                    Navigator.pop(context);
+                  },
+
+                  child: const Text('Actualizar'),
+
+                ),
               ),
             ],
           ),
@@ -1400,6 +1947,10 @@ class _QuantityModifyProductScreenState extends State<QuantityModifyProductScree
     );
   }
 }
+
+
+
+//AÑADIR FONDO
 class BackgroundContainer extends StatelessWidget {
   final Widget child;
 
@@ -1412,7 +1963,7 @@ class BackgroundContainer extends StatelessWidget {
       height: double.infinity,
       decoration: const BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/images/fondo.png'), // Ruta de tu imagen
+          image: AssetImage('assets/images/background.jpg'), // Ruta de tu imagen
           fit: BoxFit.cover, // Ajusta la imagen para cubrir el contenedor
         ),
       ),
