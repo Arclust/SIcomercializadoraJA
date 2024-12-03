@@ -633,16 +633,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _schoolController = TextEditingController();
-  final TextEditingController _sizeController = TextEditingController();
   final TextEditingController _unitsController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+
+  String? selectedSize; // Variable para almacenar la talla seleccionada
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Agregar Producto'),
-        backgroundColor: const Color(0xFFFFFFFF), // Fondo blanco
+        backgroundColor: const Color(0xFFFFFFFF),
       ),
       body: BackgroundContainer(
         child: SingleChildScrollView(
@@ -657,18 +658,22 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   cursorColor: Colors.black,
                   decoration: InputDecoration(
                     labelText: 'Tipo de producto',
-                    labelStyle: TextStyle( color: Colors.grey),
+                    labelStyle: TextStyle(color: Colors.grey),
                     filled: true,
                     fillColor: Colors.white,
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(color: Colors.grey), // Borde gris cuando no está enfocado
+                      borderSide: const BorderSide(color: Colors.grey),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(color: Colors.blue), // Borde azul cuando está enfocado
+                      borderSide: const BorderSide(color: Colors.blue),
                     ),
                   ),
+                  maxLength: 50,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')) // Denegar el caracter "/"
+                  ],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '¡Falta el nombre del producto!';
@@ -682,7 +687,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   cursorColor: Colors.black,
                   decoration: InputDecoration(
                     labelText: 'Colegio del producto',
-                    labelStyle: TextStyle( color: Colors.grey),
+                    labelStyle: TextStyle(color: Colors.grey),
                     filled: true,
                     fillColor: Colors.white,
                     enabledBorder: OutlineInputBorder(
@@ -694,6 +699,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       borderSide: const BorderSide(color: Colors.blue),
                     ),
                   ),
+                  maxLength: 50,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s]')) // Denegar el caracter "/"
+                  ],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '¡Falta el colegio al que pertenece!';
@@ -702,37 +711,62 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   },
                 ),
                 const SizedBox(height: 20),
-                TextFormField(
-                  controller: _sizeController,
-                  cursorColor: Colors.black,
-                  decoration: InputDecoration(
-                    labelText: 'Talla del producto',
-                    labelStyle: TextStyle( color: Colors.grey),
-                    filled: true,
-                    fillColor: Colors.white,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(color: Colors.blue),
-                    ),
+                // Menú desplegable para la talla
+                Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+
+                        boxShadow: [
+                        BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+
+                ),
+              ],
+            ),
+              child: DropdownButtonFormField<String>(
+                  dropdownColor: Colors.white,
+                  value: selectedSize,
+                  isExpanded: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Talla',
+                    labelStyle: TextStyle(color: Colors.grey),
                   ),
-                  validator: (value) {
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedSize = newValue;
+                    });
+                  },
+                  validator: (value) {  // <-- Aquí se agrega el validador
                     if (value == null || value.isEmpty) {
-                      return '¡Falta la talla la cual es!';
+                      return '¡Falta la talla!';
                     }
                     return null;
                   },
-                ),
+                  items: <String>['', '3', '4', '6', '8', '10', '12', '14', '16', 'S', 'M', 'L', 'XL', 'XXL']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+
+                  hint: const Text('Talla'),
+
+          ),
+        ),
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _unitsController,
                   cursorColor: Colors.black,
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: 'Cantidad del producto',
-                    labelStyle: TextStyle( color: Colors.grey),
+                    labelStyle: TextStyle(color: Colors.grey),
                     filled: true,
                     fillColor: Colors.white,
                     enabledBorder: OutlineInputBorder(
@@ -744,9 +778,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       borderSide: const BorderSide(color: Colors.blue),
                     ),
                   ),
+                  maxLength: 10,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.deny(RegExp(r'[^0-9]')) // Bloquear todos los caracteres excepto números
+                  ],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '¡Falta una cantidad inicial!';
+                    }
+                    else if (int.parse(value) < 0) {
+                      return '¡La cantidad no puede ser menor a cero!';
                     }
                     return null;
                   },
@@ -755,9 +796,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 TextFormField(
                   controller: _priceController,
                   cursorColor: Colors.black,
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: 'Precio del producto',
-                    labelStyle: TextStyle( color: Colors.grey),
+                    labelStyle: TextStyle(color: Colors.grey),
                     filled: true,
                     fillColor: Colors.white,
                     enabledBorder: OutlineInputBorder(
@@ -769,9 +811,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       borderSide: const BorderSide(color: Colors.blue),
                     ),
                   ),
+                  maxLength: 10,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.deny(RegExp(r'[^0-9]')) // Bloquear todos los caracteres excepto números
+                  ],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '¡Falta el precio por unidad!';
+                    }
+                    else if (int.parse(value) < 0) {
+                      return '¡El precio no puede ser menor a cero!';
                     }
                     return null;
                   },
@@ -789,10 +838,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     ),
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
+                        // Asegúrate de que selectedSize no sea nulo
+                        if (selectedSize == null) {
+                          // Manejar el caso en que no se ha seleccionado una talla
+                          // Puedes mostrar un mensaje de error o establecer un valor por defecto
+                          return;
+                        }
+
                         List<dynamic> nuevoProducto = await funcs.AgregarProducto(
                           _nameController.text,
                           _schoolController.text,
-                          _sizeController.text,
+                          selectedSize!, // Pasar la talla seleccionada
                           _unitsController.text,
                           _priceController.text,
                         );
@@ -800,7 +856,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                           "Agregar",
                           _nameController.text,
                           int.parse(_unitsController.text),
-                          _sizeController.text,
+                          selectedSize!, // Pasar la talla seleccionada
                         );
                         Navigator.push(
                           context,
@@ -1574,10 +1630,15 @@ class _ScanQRScreenState extends State<ScanQRScreen> {
                 cantidad: element[3],
                 precio: element[4],
               ),
-            ),
-          );
-          controller.pauseCamera();
-        });
+            );
+            controller.pauseCamera();
+          });
+        } else {
+          // Mostrar un mensaje de error o realizar una acción si el código QR no es válido
+          setState(() {
+            qrResult = 'Código QR no válido';
+          });
+        }
       }
     });
   }

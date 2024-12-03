@@ -272,6 +272,16 @@ Future<List<List<dynamic>>> FiltrarProductos(
   return ProductosFiltrados;
 }
 
+bool EsCodigoQRValido(String codigoQR) {
+  // 2. Implementar la lógica de validación
+  // Ejemplo: Verificar si el código QR tiene el formato esperado
+  final elemento = codigoQR.split('-');
+  if (elemento.length == 5) { // Asumiendo que el código QR tiene 5 partes separadas por guiones
+    return true;
+  } else {
+    return false;
+  }
+}
 
 
 Future<void> GuardarArchivo(File archivo, BuildContext context) async {
@@ -384,37 +394,54 @@ Future<void> ActualizarProducto(
   print("Producto actualizado correctamente.");
 }
 
-Future<void> EliminarProducto(String nombre,String colegio,String talla,) async {
+Future<void> EliminarProducto(String nombre, String colegio, String talla) async {
   final directory = await getApplicationDocumentsDirectory();
   final rutaArchivo = '${directory.path}/Inventario.csv';
   String csvContent = "";
 
   try {
-  csvContent = await File(rutaArchivo).readAsString();
+    csvContent = await File(rutaArchivo).readAsString();
   } catch (e) {
-     print("Error al leer el archivo CSV: $e");
-     return;
+    print("Error al leer el archivo CSV: $e");
+    return;
   }
+
   final List<List<dynamic>> filas = const CsvToListConverter().convert(csvContent);
 
   for (int i = 0; i < filas.length; i++) {
     String fila = filas[i][0] as String;
-
     List<String> elemento = fila.substring(0, fila.length).split(';');
 
     if (RegExp(nombre ?? '').hasMatch(elemento[0]) &&
         RegExp(colegio ?? '').hasMatch(elemento[1]) &&
         RegExp(talla ?? '').hasMatch(elemento[2])) {
-      filas.removeAt(i);
 
+      // Eliminar la imagen QR antes de eliminar la fila del CSV
+      try {
+        final directorioQrs = Directory('QRs');
+        final nombreImagenQr = 'qr_$nombre.png';
+        final archivoQr = File('${directorioQrs.path}/$nombreImagenQr');
+
+        if (await archivoQr.exists()) {
+          await archivoQr.delete();
+        }
+      } catch (e) {
+        print('Error al eliminar la imagen QR: $e');
+        // Manejo de errores, por ejemplo, mostrar un mensaje al usuario
+      }
+
+      filas.removeAt(i);
       break;
     }
   }
+
   final nuevoCsvContent = const ListToCsvConverter().convert(filas);
   await File(rutaArchivo).writeAsString(nuevoCsvContent);
 
   print("Producto eliminado correctamente.");
 }
+
+
 
 Future<bool> InicioSesion(String nombreUsuario, String contrasena) async {
   final directory = await getApplicationDocumentsDirectory();
